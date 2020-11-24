@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>1044454681235-nrd0jduqri2tcji5pddk1vdb8e31fgi9.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.1044454681235-nrd0jduqri2tcji5pddk1vdb8e31fgi9</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>1044454681235-6rgkdp0md2pq6di5os659lik036k40kg.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyC8QEwfWb-FoGzG4nATDV7gTa7Y2h0bk3U</string>
+	<key>GCM_SENDER_ID</key>
+	<string>1044454681235</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>app.dobo.dobo</string>
+	<key>PROJECT_ID</key>
+	<string>copper-bot-268616</string>
+	<key>STORAGE_BUCKET</key>
+	<string>copper-bot-268616.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:1044454681235:ios:097e5e0c5ee6f29e323b66</string>
+	<key>DATABASE_URL</key>
+	<string>https://copper-bot-268616.firebaseio.com</string>
+</dict>
+</plist>
