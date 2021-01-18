@@ -14,7 +14,8 @@ import { Icon, Button } from 'react-native-elements';
 import * as Constants from '../../services/Constants';
 import FilterDetail from './FilterDetail';
 import FilterOptionItem from './FilterOptionItem';
-import { getCategoriesForFilter, getBrands } from '../../services/Categories';
+import { getCategoriesForFilter, getBrands, getCategoriesForFilterForStore } from '../../services/Categories';
+import EntypoIcon from 'react-native-vector-icons/Entypo';
 
 class Filter extends Component {
 
@@ -62,18 +63,54 @@ class Filter extends Component {
             value: 'Near By',
             checked: false
         },
+        {
+            id: '2',
+            value: 'Rating',
+            checked: false
+        },
+    ]
+    storeSortDetails = [
+
+        {
+            id: '1',
+            value: "What's New",
+            mapping: 'whatsnew',
+            checked: false
+        },
+        {
+            id: '2',
+            value: "Price Low To High",
+            mapping: 'PriceLowToHigh',
+            checked: false
+        },
+        {
+            id: '3',
+            value: "Price High To Low",
+            mapping: 'PriceHighToLow',
+            checked: false
+        },
+        {
+            id: '4',
+            value: "Discount",
+            mapping: 'discount',
+            checked: false
+        }
     ]
 
     constructor(props) {
         super(props);
+        console.log('filter store', props.storeData)
         this.state = {
             isModalVisible: false,
             selectedType: props.filterOptions[0].type,
             selectedItem: props.filterOptions[0].value,
             selectedFilterDetails: [],
+            isSelectedItemTree: !!props.filterOptions[0].isTree,
             loading: false,
             selectedRadioButtonIndex: props.filterOptions[0].selectedIndex,
-            isApplyDisabled: true
+            isApplyDisabled: true,
+            isFilterInsideStore: !!props.isFilterInsideStore,
+            storeDetails: props.storeData
         }
 
     }
@@ -90,57 +127,97 @@ class Filter extends Component {
         }
         if (isApiReloadRequired) {
             await this.getFilterCategories()
+            await this.getFilterCategoriesForStore()
             await this.getFilterBrands()
             await this.createOrRefreshFilterData()
+            // if (this.state.isFilterInsideStore) {
+            //     let defaultSelectItem = this.props.filterOptions[0];
+            //     this.onFilterItemClick(defaultSelectItem);
+            // }
         }
         this.setOrResetState()
         console.log('Final Filter Data>>>', JSON.stringify(this.props.filterOptions))
         this.stopLoading()
     }
 
-    getFilterCategories = async () => {
-        let response = await getCategoriesForFilter()
-        if (response.status == 200) {
-            let jsonCategories = JSON.parse(response.responseJson)
-            jsonCategories = jsonCategories.map(v => ({ ...v, checked: false }))
-            this.categories = jsonCategories
+    // componentDidUpdate(prevProps, prevState, snapshot){
+    //     console.log("in did update",prevProps, prevState, snapshot)
+    //     console.log('this.props.categoriesForStore',this.props.categoriesForStore)
+    //     if( this.props.storeData && (prevProps.storeData.id != this.props.storeData.id)){
+    //         console.log('in if')
+    //         this.createOrRefreshFilterData();
+    //     }
+    // }
 
+    getFilterCategories = async () => {
+        if (!this.state.isFilterInsideStore) {
+            let response = await getCategoriesForFilter()
+            if (response.status == 200) {
+                let jsonCategories = JSON.parse(response.responseJson)
+                jsonCategories = jsonCategories.map(v => ({ ...v, checked: false }))
+                this.categories = jsonCategories
+
+            }
+            else {
+                //this.stopLoading()
+            }
         }
-        else {
-            //this.stopLoading()
+    }
+
+    getFilterCategoriesForStore = async () => {
+        if (this.state.isFilterInsideStore) {
+            let response = await getCategoriesForFilterForStore(this.state.storeDetails.id)
+            if (response.status == 200) {
+                let jsonCategories = response.responseJson
+                console.log('getFilterCategoriesForStore', jsonCategories)
+                jsonCategories = jsonCategories.map(v => ({ ...v, checked: false }))
+                this.categories = jsonCategories
+
+            }
+            else {
+                //this.stopLoading()
+            }
         }
     }
     getFilterBrands = async () => {
         let response = await getBrands()
         if (response.status == 200) {
-            let jsonBrands = JSON.parse(response.responseJson)
-            jsonBrands = jsonBrands.map(v => ({ ...v, checked: false }))
-            this.brands = jsonBrands
+            let jsonBrands = JSON.parse(response.responseJson);
+            let distinctBrands = []
+            jsonBrands = jsonBrands.forEach(v => {
+                let index = distinctBrands.findIndex(b => b.name == v.name);
+                if (index > -1) {
+                    distinctBrands[index].brandIds.push(v.id)
+                } else {
+                    distinctBrands.push({ ...v, checked: false, brandIds: [v.id] })
+                }
+            })
+            this.brands = distinctBrands;
         }
         else {
             //this.stopLoading()
         }
     }
 
-    createOrRefreshFilterData = async () => {
+    createOrRefreshFilterData = async (isUpdateFlow) => {
         const { filterOptions } = this.props
         filterOptions.forEach((image, index) => {
             let details = []
             switch (image.value) {
                 case 'Sort by':
-                    details = JSON.parse(JSON.stringify(this.sortDetails))
+                    details = this.state.isFilterInsideStore ? JSON.parse(JSON.stringify(this.storeSortDetails)) : JSON.parse(JSON.stringify(this.sortDetails))
                     break;
                 case 'Categories':
-                    details = JSON.parse(JSON.stringify(this.categories))
+                    details = this.props.categoriesForStore ? JSON.parse(JSON.stringify(this.props.categoriesForStore)) : JSON.parse(JSON.stringify(this.categories));
                     break;
                 case 'Brands':
                     details = JSON.parse(JSON.stringify(this.brands))
                     break;
                 case 'Ratings':
-                    details = JSON.parse(JSON.stringify(this.sortDetails))
+                    details = this.state.isFilterInsideStore ? JSON.parse(JSON.stringify(this.storeSortDetails)) : JSON.parse(JSON.stringify(this.sortDetails))
                     break;
                 case 'More Filters':
-                    details = JSON.parse(JSON.stringify(this.sortDetails))
+                    details = this.state.isFilterInsideStore ? JSON.parse(JSON.stringify(this.storeSortDetails)) : JSON.parse(JSON.stringify(this.sortDetails))
                     break;
             }
             image.details = details
@@ -149,7 +226,7 @@ class Filter extends Component {
             }
             this[index] = image;
         }, filterOptions);
-        this.setOrResetState()
+        this.setOrResetState(isUpdateFlow)
     }
 
     clearFilterData = async () => {
@@ -165,17 +242,30 @@ class Filter extends Component {
             // }
             switch (image.value) {
                 case 'Sort by':
-                    details = JSON.parse(JSON.stringify(this.sortDetails))
+                    details = this.state.isFilterInsideStore ? JSON.parse(JSON.stringify(this.storeSortDetails)) : JSON.parse(JSON.stringify(this.sortDetails))
                     break;
                 case 'Categories':
                 case 'Brands':
-                    details = image.details.map(x => ({ ...x, checked: false }))
+                    details = image.details.map(x => {
+                        if (x.children) {
+                            x.children.forEach((c) => {
+                                c.checked = false
+                                c.expand = false
+                                if (c.children) {
+                                    c.children.forEach((subC) => {
+                                        subC.checked = false;
+                                    })
+                                }
+                            })
+                        }
+                        return ({ ...x, expand: false, checked: false })
+                    })
                     break;
                 case 'Ratings':
-                    details = JSON.parse(JSON.stringify(this.sortDetails))
+                    details = this.state.isFilterInsideStore ? JSON.parse(JSON.stringify(this.storeSortDetails)) : JSON.parse(JSON.stringify(this.sortDetails))
                     break;
                 case 'More Filters':
-                    details = JSON.parse(JSON.stringify(this.sortDetails))
+                    details = this.state.isFilterInsideStore ? JSON.parse(JSON.stringify(this.storeSortDetails)) : JSON.parse(JSON.stringify(this.sortDetails))
                     break;
             }
             image.details = details
@@ -184,17 +274,32 @@ class Filter extends Component {
             }
             this[index] = image;
         }, filterOptions);
-        this.setOrResetState()
+        this.setOrResetState();
     }
 
-    setOrResetState = () => {
-        this.setState({
-            selectedRadioButtonIndex: this.props.filterOptions[0].selectedIndex,
-            selectedType: this.props.filterOptions[0].type,
-            selectedItem: this.props.filterOptions[0].value,
-            selectedFilterDetails: this.props.filterOptions[0].details
-        }
-        )
+    setOrResetState = (isUpdateFlow) => {
+        let isCheckApplied = this.isCheckApplied();
+        // if (isUpdateFlow && this.state.isFilterInsideStore) {
+        //     let valueDetails = this.props.filterOptions[1].details;
+        //     let modifiedData = this.createParentChildRelations(valueDetails);
+        //     this.setState({
+        //         selectedItem: this.props.filterOptions[1].value,
+        //         selectedFilterDetails: modifiedData,
+        //         isSelectedItemTree: !!this.props.filterOptions[1].isTree,
+        //         selectedType: this.props.filterOptions[1].type,
+        //     }
+        //     )
+        // } else {
+            this.setState({
+                selectedRadioButtonIndex: this.props.filterOptions[0].selectedIndex,
+                selectedType: this.props.filterOptions[0].type,
+                selectedItem: this.props.filterOptions[0].value,
+                selectedFilterDetails: this.props.filterOptions[0].details,
+                isSelectedItemTree: !!this.props.filterOptions[0].isTree,
+                isApplyDisabled: !isCheckApplied
+            }
+            )
+        // }
     }
 
     startLoading = () => {
@@ -216,20 +321,79 @@ class Filter extends Component {
         this.onCloseClick()
     }
 
+    createParentChildRelations = (inputArr) => {
+        let mainArr = [];
+        if (inputArr) {
+            inputArr.forEach(element => {
+                if (!element.parent_Category) {
+                    element.children = element.children && element.children.length ? element.children : [];
+                    mainArr.push(element)
+                }
+                else {
+                    //checking if element is child of parent
+                    let index = mainArr.findIndex(item => {
+                        return item.id == element.parent_Category.id;
+                    })
+                    if (index > -1) {
+                        //checking if element is already present in children array
+                        let cIdx = mainArr[index].children.findIndex((el) => el.id == element.id)
+                        if (cIdx == -1) {
+                            mainArr[index].children.push(element);
+                        }
+                    }
+                    else {
+                        mainArr.some((mainEle) => {
+                            // method which will append subchild to children of parent
+                            return this.createParentSubChildRelations(mainEle.children, element);
+                        })
+                    }
+                }
+            });
+        }
+        return mainArr;
+    }
+
+    createParentSubChildRelations = (childArr, subChildElement) => {
+        let index = childArr.findIndex(item => {
+            return item.id == subChildElement.parent_Category.id;
+        })
+        if (index > -1) {
+            //checking if child already has subchilds 
+            if (childArr[index].children && childArr[index].children.length) {
+                //checking if element is already present in children array
+                let cIdx = childArr[index].children.findIndex((el) => el.id == subChildElement.id)
+                if (cIdx == -1) {
+                    childArr[index].children.push(subChildElement);
+                    return true;
+                }
+            }
+            else {
+                childArr[index].children = [subChildElement];
+                return true;
+            }
+        }
+        return false
+    }
+
     onFilterItemClick = (item) => {
         console.log("ITEM111>>>", item.details)
         let detailType = item.type
         let valueDetails = item.details/*this.sortDetails*/
+        let modifiedData = this.createParentChildRelations(valueDetails);
+        console.log('parent child', modifiedData)
+        this.startLoading()
         this.setState(
             {
                 selectedItem: item.value,
-                selectedFilterDetails: valueDetails,
+                selectedFilterDetails: modifiedData,
                 selectedType: detailType,
-                selectedRadioButtonIndex: item.selectedIndex
+                selectedRadioButtonIndex: item.selectedIndex,
+                isSelectedItemTree: !!item.isTree
             }, () => console.log("ITEM>>>", this.state.selectedFilterDetails)
         );
 
         this.renderSubMenu(item);
+        this.stopLoading()
     }
 
     onCloseClick = () => {
@@ -247,12 +411,20 @@ class Filter extends Component {
         )
     }
 
-    renderSubMenu = (item) => {
+    renderSubMenu = async (item) => {
         if (item.value === 'Sort by') {
             console.log("sortby>>>>")
 
         } else if (item.value === 'Rating') {
             console.log("rating>>>>")
+        }
+        else if (item.value === 'Categories') {
+            console.log("Categories>>>>")
+            // if (this.state.isFilterInsideStore) {
+            //     await this.getFilterCategoriesForStore();
+            //     await this.createOrRefreshFilterData(true)
+            // }
+            // // await this.getFilterBrands()
         }
     }
 
@@ -271,10 +443,27 @@ class Filter extends Component {
 
         for (const element of this.props.filterOptions) {
             if (element.type === 'Multiple') {
-                if (element.details.some(e => e.checked === true)) {
+                if (element.details.some(e => {
+                    if (e.children) { //checking if children are there
+                        if (e.children.some(child => {
+                            if (child.children) { //checking if sub children are there
+                                if (child.children.some(subChild => subChild.checked === true)) {
+                                    return true;
+                                }
+                            }
+                            return child.checked === true;
+                        })) {
+                            return true;
+                        }
+                    }
+                    return e.checked === true
+                })) {
                     return true;
                 }
             }
+            // else if (element.type === 'Single' && this.state.isFilterInsideStore) {
+            //     return true;
+            // }
         }
         return false;
     }
@@ -288,25 +477,27 @@ class Filter extends Component {
         this.setState({ selectedFilterDetails: detail, isApplyDisabled: !isCheckApplied })
     }
 
+    handleIconPress = (details) => {
+        this.setState({ selectedFilterDetails: details })
+    }
+
     onSelectRadioButton = (index) => {
         const { filterOptions } = this.props
         let objIndex = filterOptions.findIndex((obj => obj.value == this.state.selectedItem));
         filterOptions[objIndex].selectedIndex = index
         console.log('Filter Options after Radio', JSON.stringify(filterOptions))
-        this.setState({ selectedRadioButtonIndex: index })
+        this.setState({ selectedRadioButtonIndex: index, isApplyDisabled: !this.state.isFilterInsideStore })
     }
 
     render() {
+        console.log('this.state.selectedFilterDetails',this.state.selectedFilterDetails)
         return (
             <View>
                 <Modal
                     animationType="slide"
                     transparent={true}
-                    visible={true}
-                // onRequestClose={() => {
-                //     this.onCloseClick
-                // }}
-                >
+                    // visible={true}
+                    onRequestClose={this.onCloseClick}>
                     <View style={{ backgroundColor: 'transparent', flex: 1 }}>
 
                     </View>
@@ -320,15 +511,16 @@ class Filter extends Component {
                         }
                         <View style={{ flexDirection: "row" }}>
                             <View style={{ padding: 20 }}>
-                                <Text style={{ fontSize: 16, fontFamily: Constants.BOLD_FONT_FAMILY }}>Sort and filters</Text>
+                                <Text style={{ fontSize: 16, fontFamily: Constants.BOLD_FONT_FAMILY }}>Filters</Text>
                             </View>
 
                             <TouchableWithoutFeedback>
-                                <TouchableOpacity style={{ right: 10, position: 'absolute', padding: 20 }}
+                                <TouchableOpacity style={{ right: 0, position: 'absolute', padding: 20 }}
                                     onPress={
                                         this.onCloseClick
                                     }>
-                                    <Icon name="close" type="material" color="black"></Icon>
+                                    <EntypoIcon name="circle-with-cross" color={Constants.DOBO_RED_COLOR}
+                                        size={30} />
                                 </TouchableOpacity>
                             </TouchableWithoutFeedback>
                         </View>
@@ -338,7 +530,7 @@ class Filter extends Component {
                                 borderBottomWidth: 1,
                             }} />
                         <View style={styles.mainFilterView}>
-                            <View style={{ flex: 0.6 }}>
+                            <View style={{ flex: 0.4 }}>
                                 <FlatList
                                     data={this.props.filterOptions}
                                     extraData={this.state.selectedItem}
@@ -359,11 +551,13 @@ class Filter extends Component {
                             />
                             <View style={{ flex: 1 }}>
                                 <FilterDetail
-                                    filterItem={this.state.selectedFilterDetails}
+                                    filterItem={this.props.filterOptions[1].value == this.state.selectedItem && this.props.categoriesForStore ? this.createParentChildRelations(this.props.categoriesForStore) : this.state.selectedFilterDetails}
                                     type={this.state.selectedType}
                                     onCheckItemSelected={this.onCheckItemSelected}
                                     selectedRadioButtonIndex={this.state.selectedRadioButtonIndex}
                                     onSelectRadioButton={this.onSelectRadioButton}
+                                    onIconPress={this.handleIconPress}
+                                    isSelectedItemTree={this.state.isSelectedItemTree}
                                 />
                             </View>
                         </View>
@@ -374,8 +568,8 @@ class Filter extends Component {
                             <View style={{ alignSelf: 'center' }}>
                                 <Button
                                     title="Apply"
-                                    buttonStyle={{ backgroundColor: Constants.DOBO_RED_COLOR }}
-                                    titleStyle={{ fontSize: 16, padding: 30 }}
+                                    buttonStyle={{ backgroundColor: Constants.DOBO_RED_COLOR, borderRadius: 40 }}
+                                    titleStyle={{ fontSize: 16, padding: 30, fontFamily: Constants.LIST_FONT_FAMILY }}
                                     onPress={this.onApplyFilterHandler}
                                     disabled={this.state.isApplyDisabled}
                                     disabledStyle={{ backgroundColor: Constants.DOBO_RED_DISABLED_COLOR }}
@@ -395,13 +589,13 @@ class Filter extends Component {
 
 const styles = StyleSheet.create({
     modal: {
-        flex: 1,
+        flex: 2,
         borderColor: '#fff',
         backgroundColor: "white",
     },
     footerView: {
         paddingHorizontal: '5%',
-        flex: 2,
+        flex: 1,
         flexDirection: 'row',
         borderTopColor: '#DAE7EC',
         borderWidth: 1,

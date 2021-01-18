@@ -69,7 +69,7 @@ export const getAllProductByStoreId = async (storeId) => {
     };
     return returnObj;
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 }
 
@@ -98,7 +98,7 @@ export const getAllProductByBagId = async (bagId) => {
     };
     return returnObj;
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 }
 
@@ -126,7 +126,7 @@ export const getBagDetails = async (bagId) => {
     };
     return returnObj;
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 }
 
@@ -158,7 +158,7 @@ export const addUpdateProductToBag = async (storeId, data, isUpdate, bagId) => {
     };
     return returnObj;
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 }
 
@@ -189,7 +189,7 @@ export const removeProductFromBag = async (storeId, bagId, productId) => {
     };
     return returnObj;
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 }
 
@@ -220,12 +220,12 @@ export const removeBagFromStore = async (bagId) => {
     };
     return returnObj;
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 }
 
-export const submitBag = async (bagId, addressId) => {
-  let path = `/api/Bags/${bagId}/Submit?userAddressId=${addressId}`;
+export const submitBag = async (bagId, addressId, isDoorDelivery) => {
+  let path = isDoorDelivery ? `/api/Bags/${bagId}/Submit?doorDelivery=true&userAddressId=${addressId}` : `/api/Bags/${bagId}/Submit?doorDelivery=false`;
   let url = baseURL + path;
   try {
     let token = await getUserToken();
@@ -250,6 +250,37 @@ export const submitBag = async (bagId, addressId) => {
     };
     return returnObj;
   } catch (error) {
-    console.error(error);
+    console.log(error);
+  }
+}
+
+export const returnBag = async (bagId, req) => {
+  let path = `/api/Bags/${bagId}/ReturnBag`;
+  let url = baseURL + path;
+  try {
+    let token = await getUserToken();
+    let response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify(req)
+    });
+    let responseStatus = response.status;
+    console.log('Status Code for ' + path + ':' + responseStatus);
+    let responseJson = {};
+    try {
+      responseJson = await response.json();
+    } catch (error) {
+      console.log('Error while parsning response json', error);
+    }
+    let returnObj = {
+      status: responseStatus,
+      responseJson: responseJson,
+    };
+    return returnObj;
+  } catch (error) {
+    console.log(error);
   }
 }

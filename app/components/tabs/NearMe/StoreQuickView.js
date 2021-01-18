@@ -84,7 +84,7 @@ class StoreQuickView extends Component {
 			closeTimeFormat = 'Closes' + ' ' + moment(this.props.selectedStore.store.closingTime, "LTS").utcOffset('+05:30').format('LT');
 		}
 		const { imageURL, retailer, description, address } = this.props.selectedStore.store
-		let storeBanner = imageURL && imageURL[0] ? (Constants.imageResBaseUrl + imageURL[0].imageUrl) : Constants.DEFAULT_STORE_IMAGE
+		let storeBanner = imageURL && imageURL[0] ? imageURL[0].imageUrl.indexOf('http') > -1 ? imageURL[0].imageUrl : (Constants.imageResBaseUrl + imageURL[0].imageUrl) : Constants.DEFAULT_STORE_IMAGE
 		return (
 
 			<View style={styles.container}>
@@ -94,9 +94,9 @@ class StoreQuickView extends Component {
 						source={{ uri: storeBanner }}
 						style={{
 							width: '100%',
-							height: '100%',
+							height: Constants.BANNER_HEIGHT,
 						}}
-						resizeMode='stretch'
+						resizeMode='cover'
 					>
 						<Icon
 							name='circle-with-cross'
@@ -107,7 +107,7 @@ class StoreQuickView extends Component {
 					</ImageBackground>
 				</View>
 
-				<View style={{ flex: 1.5, backgroundColor: 'white' }}>
+				<View style={{ flex: 1, backgroundColor: 'white' }}>
 					<TouchableWithoutFeedback onPress={this.onStoreClickHandler}>
 						<View style={styles.storeInfoContainer}>
 							<Image
@@ -149,7 +149,7 @@ class StoreQuickView extends Component {
 									</Text>
 								</View>
 
-								<View style={{ flex: 1 }}>
+								<View style={{ height: 60 }}>
 									<Button
 										title={Math.round(this.props.selectedStore.distance / 1000) + 'km'}
 										onPress={this.onOpenMapHandler}
@@ -182,10 +182,10 @@ const styles = StyleSheet.create({
 		//height: '15%',
 		width: Constants.SCREEN_WIDTH,
 		flex: 1,
-		//backgroundColor: 'transparent'
+		// backgroundColor: '#fff'
 	},
 	storeImageContainer: {
-		flex: 3,
+		// flex: 3,
 		borderTopColor: Constants.DOBO_RED_COLOR,
 		borderTopWidth: 2,
 		//justifyContent: 'flex-end'

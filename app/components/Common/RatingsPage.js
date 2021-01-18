@@ -56,10 +56,28 @@ const RatingsPage = ({
   const [storeStaffSupportRating, setStoreStaffSupportRating] = useState(defaultRating);
   const [comments, setComments] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [storeAggRating, setStoreAggRating] = useState('');
 
   const { retailer, address, description } = storeDetails;
-  let imageURL = retailer != null ? (Constants.imageResBaseUrl + retailer.iconURL) : Constants.DEFAULT_STORE_ICON;
+  let imageURL = retailer != null ? retailer.iconURL.indexOf('http') > -1 ? retailer.iconURL : (Constants.imageResBaseUrl + retailer.iconURL) : Constants.DEFAULT_STORE_ICON;
   let isDisabled = !purchaseExpRating || !productQualityRating || !storeStaffSupportRating;
+
+  const calculateAggRating = () => {
+    const { storeReviewAnalytics } = storeDetails;
+    if (storeReviewAnalytics) {
+      let total = storeReviewAnalytics.productQualityAverage + storeReviewAnalytics.purchaseExpAverage + storeReviewAnalytics.storeStaffSupportAverage;
+      let aggStoreRating = (total / 3).toFixed(1);
+      setStoreAggRating(aggStoreRating.toString());
+    }
+    else {
+      setStoreAggRating('');
+    }
+
+  }
+
+  useEffect(() => {
+    calculateAggRating();
+  }, [storeDetails])
 
   const handleRatingSubmit = async () => {
     setIsLoading(true);
@@ -107,7 +125,7 @@ const RatingsPage = ({
             </View>
           </View>
           <View style={{ flexDirection: 'row' }}>
-            <Text style={styles.storeStarRating}>{storeDetails.rating || '5.0'}</Text>
+            <Text style={styles.storeStarRating}>{storeAggRating}</Text>
             <Icon
               name='star'
               color="#ffc106"

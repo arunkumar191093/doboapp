@@ -27,7 +27,7 @@ export const GetDoboTv = async function () {
         let returnObj = { 'status': responseStatus, 'responseJson': JSON.stringify(responseJson) }
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }
 
@@ -55,6 +55,6 @@ export const GetDoboTvByCategory = async function (id) {
         let returnObj = { 'status': responseStatus, 'responseJson': JSON.stringify(responseJson) }
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }

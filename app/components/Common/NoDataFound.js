@@ -11,7 +11,9 @@ const NoDataFound = ({ message }) => (
 const styles = StyleSheet.create({
     message: {
         fontSize: 20,
-        fontFamily: Constants.BOLD_FONT_FAMILY
+        fontFamily: Constants.LIST_FONT_FAMILY,
+        textAlign: "center",
+        paddingHorizontal: '15%'
     }
 });
 

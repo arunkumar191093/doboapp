@@ -10,6 +10,8 @@ import StorePage from '../../StorePage/StorePage';
 import StoreByCampaign from '../../StoreByCampaign';
 import * as Constants from '../../../services/Constants'
 import StorePageDetails from '../../StorePage/StorePageDetails';
+import { ImageConst } from '../../../services/ImageConstants';
+import IconComponent from '../../Common/IconComponent';
 
 const TrendingOffersStack = createStackNavigator(
     {
@@ -24,6 +26,9 @@ const TrendingOffersStack = createStackNavigator(
         headerMode: 'none',
         navigationOptions: {
             header: false,
+            tabBarIcon: ({ tintColor, focused }) => (
+                <IconComponent size={25} name={focused ? ImageConst['trending-active'] : ImageConst['trending-default']} />
+            )
         },
     },
 );
@@ -66,11 +71,19 @@ export const Trending = createMaterialTopTabNavigator(
             },
             showIcon: true,
             showLabel: true,
+            labelStyle: {
+                fontFamily: Constants.LIST_FONT_FAMILY,
+                textAlign: 'center'
+            },
             tabStyle: {
                 flexDirection: 'row',
+                justifyContent: 'center',
+                textAlign: 'center'
             },
             style: {
-                backgroundColor: 'white'
+                backgroundColor: 'white',
+                justifyContent: 'center',
+                textAlign: 'center'
             },
         },
         lazy: true

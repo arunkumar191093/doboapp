@@ -11,7 +11,10 @@ const statusEnum = {
   Submitted: 'Pending Confirmation',
   Confirmed: 'Confirmed',
   PartiallyConfirmed: 'Partially Confirmed',
-  NotAvailable: 'Not Available'
+  NotAvailable: 'Not Available',
+  Rejected: 'Not Available',
+  Delivered: 'Delivered',
+  Returned: 'Returned',
 }
 
 const calculateTimeDifference = (newDate, oldDate) => {
@@ -23,28 +26,32 @@ const calculateTimeDifference = (newDate, oldDate) => {
     minutes = minutes - (hours * 60);
     minutes = (minutes >= 10) ? minutes : "0" + minutes;
   }
-  return minutes > 59 ? `${hours} hr and ${minutes} min ago` : `${minutes} min ago`;
+  return isNaN(hours) || isNaN(minutes) ? '' : minutes > 59 ? `${hours} hr and ${minutes} min ago` : `${minutes} min ago`;
 }
 
 const BagItem = ({
   bagInfo = {},
   onDeleteBag = () => { },
+  onReturn = () => { },
   handleBagPress = () => { },
   onBuyNow = () => { },
 }) => {
   const { bag: { storeInfo, status, updatedAt } } = bagInfo;
-  const bagStatus = statusEnum[status] || 'Pending Confirmation';
-  const disableBuy = bagStatus == 'Not Available' || bagStatus == 'Pending Confirmation' ? false : false;
+  const bagStatus = statusEnum[status] || '';
+  const disableBuy = !bagStatus ||bagStatus == 'Not Available' || bagStatus == 'Pending Confirmation' || bagStatus == 'Returned' || bagStatus == 'Delivered' ? true : false;
   let today = (new Date()).getTime();
   let updatedAtTime = (new Date(updatedAt.replace('T', ' ').substring(0, 16))).getTime();
   let timeAgo = calculateTimeDifference(today, updatedAtTime);
+  let mediaURL = storeInfo.retailer && storeInfo.retailer.iconURL && storeInfo.retailer.iconURL.indexOf('http') > -1 ? storeInfo.retailer.iconURL : Constants.imageResBaseUrl + storeInfo.retailer.iconURL;
+  let returnLastDate = new Date(updatedAt.substring(0, 10))
+  returnLastDate.setDate(returnLastDate.getDate() + 10) // assuming 10days return period
 
   return (
     <TouchableOpacity style={styles.bagItemContainer} onPress={() => handleBagPress(bagInfo)}>
 
       <View style={styles.listRow}>
         <Image style={styles.listImage}
-          source={{ uri: Constants.imageResBaseUrl + storeInfo.retailer.iconURL || Constants.DEFAULT_STORE_ICON }} />
+          source={{ uri: mediaURL || Constants.DEFAULT_STORE_ICON }} />
         <View style={styles.rowText}>
           <Text
             style={styles.listNameText}>
@@ -71,27 +78,47 @@ const BagItem = ({
         <View style={styles.timer}>
           {/* <Text style={styles.timerTxt}>14 : 22</Text> */}
         </View>
-        <View style={[styles.bagStatusContainer,
-        bagStatus == 'Pending Confirmation' ? styles.pendingStatus :
-          bagStatus == 'Not Available' ? styles.errorStatus : null]}>
-          <Text style={styles.statusTxt}>{bagStatus}</Text>
-        </View>
-
+        {
+          !!bagStatus &&
+          <View style={[styles.bagStatusContainer,
+          bagStatus == 'Pending Confirmation' ? styles.pendingStatus :
+            bagStatus == 'Not Available' ? styles.errorStatus : null]}>
+            <Text style={styles.statusTxt}>{bagStatus}</Text>
+          </View>
+        }
         <Text style={styles.timerAgo}>{timeAgo ? timeAgo : ''}</Text>
 
       </View>
 
       <View style={styles.infoMsgContainer}>
-        <Text style={styles.infoMsg}>Payment will be enabled for 30 min after confirmation</Text>
+        {
+          bagStatus == 'Delivered' &&
+          <Text style={styles.infoMsg}>Return may be possible through {returnLastDate.toDateString()}</Text>
+        }
+        {
+          bagStatus != 'Delivered' &&
+          <Text style={styles.infoMsg}>Payment will be enabled for 30 min after confirmation</Text>
+        }
       </View>
 
       <View style={[styles.splitBtncontainer]}>
-        <TouchableOpacity onPress={() => onDeleteBag(bagInfo)} style={styles.leftBtn}>
-          <Text style={[styles.splitBtnTxt, { color: Constants.DOBO_RED_COLOR }]}>DELETE BAG</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => onBuyNow(bagInfo)} style={[styles.rightBtn, disableBuy ? styles.disabledBtn : null]} disabled={disableBuy}>
-          <Text style={styles.splitBtnTxt}>PAY NOW</Text>
-        </TouchableOpacity>
+        {
+          bagStatus == 'Delivered' &&
+          <TouchableOpacity onPress={() => onReturn(bagInfo)} style={styles.leftBtn}>
+            <Text style={[styles.splitBtnTxt, { color: Constants.DOBO_RED_COLOR }]}>REQUEST RETURN</Text>
+          </TouchableOpacity>
+        }
+        {
+          bagStatus != 'Delivered' &&
+          <>
+            <TouchableOpacity onPress={() => onDeleteBag(bagInfo)} style={styles.leftBtn}>
+              <Text style={[styles.splitBtnTxt, { color: Constants.DOBO_RED_COLOR }]}>DELETE BAG</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => onBuyNow(bagInfo)} style={[styles.rightBtn, disableBuy ? styles.disabledBtn : null]} disabled={disableBuy}>
+              <Text style={styles.splitBtnTxt}>PAY NOW</Text>
+            </TouchableOpacity>
+          </>
+        }
       </View >
     </TouchableOpacity>
   )
@@ -150,6 +177,7 @@ const AllBags = ({ navigation }) => {
     console.log('buy bag', data)
     const { bag: { id, storeInfo } } = data;
     navigation.navigate('PayNowSummary', { storeInfo: storeInfo, bagId: id })
+    // navigation.navigate('RequestReturn') //TODO: remove this, just used for bypassing steps
   }
 
   const handleGoToBag = (data) => {
@@ -174,6 +202,7 @@ const AllBags = ({ navigation }) => {
               renderItem={({ item }) => <BagItem
                 bagInfo={item}
                 onDeleteBag={handleDeleteBag}
+                onReturn={handleGoToBag}
                 handleBagPress={handleGoToBag}
                 onBuyNow={handleBuyBag}
               />}
@@ -198,7 +227,8 @@ const styles = StyleSheet.create({
     height: '100%'
   },
   bagItemContainer: {
-    marginTop: 12
+    marginTop: 12,
+    backgroundColor: '#fff'
   },
   infoMsgContainer: {
     padding: 4,
@@ -214,8 +244,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: '#fff',
     padding: 12,
-    paddingRight: 16
-    //borderBottomColor: "black"
+    paddingRight: 16,
   },
   listImage: {
     width: 50,

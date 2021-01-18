@@ -33,6 +33,7 @@ class StoreCheckinDetails extends Component {
     }
 
     render() {
+        let mediaURL = this.storeDetails.store && this.storeDetails.store.retailer && this.storeDetails.store.retailer.iconURL && this.storeDetails.store.retailer.iconURL.indexOf('http') > -1 ? this.storeDetails.store.retailer.iconURL : Constants.imageResBaseUrl + this.storeDetails.store.retailer.iconURL
         return (
             <ScrollView style={{ flex: 1 }}>
                 <NoNetwork />
@@ -44,7 +45,7 @@ class StoreCheckinDetails extends Component {
                 <View style={{ alignSelf: 'center', marginTop: '20%' }}>
                     <Text style={{ fontSize: 18, color: "#5E7A90", alignSelf: 'center', fontFamily: Constants.LIST_FONT_FAMILY }}>YOU ARE IN</Text>
                     <Image style={styles.listImage}
-                        source={{ uri: Constants.imageResBaseUrl + this.storeDetails.store.retailer.iconURL || Constants.DEFAULT_STORE_ICON }} />
+                        source={{ uri: mediaURL || Constants.DEFAULT_STORE_ICON }} />
                     <View style={{ justifyContent: 'flex-start', alignItems: 'center', marginTop: '10%' }}>
                         <Text style={{ fontSize: 18, color: "#5E7A90", fontWeight: 'bold', fontFamily: Constants.LIST_FONT_FAMILY }}>{this.storeDetails.store.description.trim()}</Text>
                         <Text numberOfLines={3} style={{ fontSize: 12, color: "#5E7A90", textAlign: 'center', fontFamily: Constants.LIST_FONT_FAMILY }}>

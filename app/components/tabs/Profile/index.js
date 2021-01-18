@@ -1,13 +1,16 @@
 import React, { Component } from 'react'
 import {
     View,
-    Alert
+    Alert,
+    Text
 } from 'react-native'
 import ProfileHeader from './ProfileHeader'
 import ProfileListComponent from './ProfileListComponent'
 import { logout } from '../../../services/Helper'
 import NoNetwork from '../../Common/NoNetwork'
 import { coupons, storecheckins } from '../../../services/ProfileListApi'
+import { getVersion } from 'react-native-device-info';
+import * as Constants from '../../../services/Constants';
 
 class Profile extends Component {
     constructor(props) {
@@ -20,6 +23,10 @@ class Profile extends Component {
             {
                 title: 'Refer and Earn',
                 icon: require('../../../assets/images/refer-earn.png')
+            },
+            {
+                title: 'My Happy Bags',
+                icon: require('../../../assets/images/personalized-shopping.png')
             },
             {
                 title: 'My Checkins',
@@ -44,7 +51,8 @@ class Profile extends Component {
                 icon: require('../../../assets/images/signout.png')
             },
         ],
-        loading: false
+        loading: false,
+        currentVersion: ''
     }
     static navigationOptions = {
         header: null,
@@ -61,6 +69,10 @@ class Profile extends Component {
         } else if (item.title === 'Refer and Earn') {
             console.log('My Referal Clicked')
             this.onRefer()
+        }
+        else if (item.title === 'My Happy Bags') {
+            console.log('My Happy Bags Clicked')
+            this.props.navigation.navigate('AllBags')
         }
         else if (item.title == 'My Checkins') {
             console.log('My Checkins clicked')
@@ -111,6 +123,11 @@ class Profile extends Component {
     componentDidMount = async () => {
         this.callCouponsDetails()
         this.callStorecheckinsDetails()
+        console.log('version is', getVersion())
+        const version = getVersion();
+        this.setState({
+            currentVersion: version
+        })
     }
 
 
@@ -181,9 +198,21 @@ class Profile extends Component {
                         onCurrentItemClick={this.onItemClickHandler}
                     />
                 </View>
+                {
+                    !!this.state.currentVersion &&
+                    <Text style={{
+                        textAlign: 'center',
+                        fontFamily: Constants.LIST_FONT_FAMILY,
+                        fontSize: 14,
+                        color: Constants.LIGHT_GREY_COLOR,
+                        paddingBottom: 8
+                    }}>
+                        version - {this.state.currentVersion}
+                    </Text>
+                }
             </View>
         )
     }
 }
 
-export default Profile
+export default Profile;

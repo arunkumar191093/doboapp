@@ -54,7 +54,7 @@ const AddUpdateAddress = ({
   const [stateName, changeStateName] = useState('');
   const [isNewForm, setIsNewForm] = useState(!allAddresses.length);
 
-  const isDisabled = !name || !address || !phone || !pincode || !city || !stateName;
+  const isDisabled = !name || !address || !phone || !pincode || !city || !stateName || (pincode && pincode.length < 6) || (phone && phone.length < 10);
 
   const handleFormSubmit = async () => {
     let req = {
@@ -68,7 +68,8 @@ const AddUpdateAddress = ({
     }
     const response = await addNewUserAddresses(req);
     if (response.status === 200) {
-      onClose();
+      onClose(true);
+      setIsNewForm(false);
     } else {
       alert('Something went wrong. Please try again')
     }
@@ -106,7 +107,7 @@ const AddUpdateAddress = ({
   }
 
   return (
-    <ModalPopUp canClose={true} onClose={onClose} >
+    <ModalPopUp canClose={true} onClose={isNewForm ? () => setIsNewForm(false) : () => onClose()} >
       <View style={styles.addressFormContainer}>
         <Text style={styles.heading}>{isNewForm ? 'Add Address' : 'Change Address'}</Text>
         <ScrollView style={{ flex: 1, marginTop: 28 }}>

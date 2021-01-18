@@ -33,14 +33,29 @@ class StoreListComponent extends PureComponent {
         );
     };
 
+    calculateAggRating(data) {
+        const { storeReviewAnalytics } = data;
+        if (storeReviewAnalytics) {
+            let total = storeReviewAnalytics.productQualityAverage + storeReviewAnalytics.purchaseExpAverage + storeReviewAnalytics.storeStaffSupportAverage;
+            let aggStoreRating = (total / 3).toFixed(1);
+            return aggStoreRating.toString();
+        }
+        else {
+            return ''
+        }
+
+    }
+
     renderComponent = ({ item }) => {
         let address = (item.store.address.address1 || '') + (item.store.address.address2 || '')
         let distanceInKM = Math.round(item.distance / 1000) + 'km'
+        let storeRating = this.calculateAggRating(item.store);
+        let mediaURL = item.store && item.store.retailer && item.store.retailer.iconURL && item.store.retailer.iconURL.indexOf('http') > -1 ? item.store.retailer.iconURL : Constants.imageResBaseUrl + item.store.retailer.iconURL
         return (
             <TouchableWithoutFeedback onPress={() => this.onItemClickHandler(item)}>
                 <View style={styles.listRow}>
                     <Image style={styles.listImage}
-                        source={{ uri: Constants.imageResBaseUrl + item.store.retailer.iconURL || Constants.DEFAULT_STORE_ICON }} />
+                        source={{ uri: mediaURL || Constants.DEFAULT_STORE_ICON }} />
                     <View style={styles.rowText}>
                         <View style={{ flex: 1 }}>
                             <Text numberOfLines={3}
@@ -56,19 +71,24 @@ class StoreListComponent extends PureComponent {
                         </View>
                     </View>
                     {/*Commented on DOBO team request*/}
-                    {/* <View style={{ flex: 0.3, flexDirection: 'row', marginTop: '3%', alignSelf: 'flex-start' }}>
-                        <Text style={{
-                            fontSize: Constants.LIST_FONT_SIZE_ADDRESS,
-                            fontFamily: Constants.LIST_FONT_FAMILY,
-                            color: Constants.DOBO_GREY_COLOR,
-                        }}>
-                            {'5.0'}
-                        </Text>
-                        <IconComponent
-                            style={{ marginHorizontal: '5%', }}
-                            name={ImageConst["star-rating"]}
-                            size={12} />
-                    </View> */}
+                    <View style={{ flex: 0.3, flexDirection: 'row', marginTop: '3%', alignSelf: 'flex-start' }}>
+                        {
+                            !!storeRating &&
+                            <>
+                                <Text style={{
+                                    fontSize: Constants.LIST_FONT_SIZE_ADDRESS,
+                                    fontFamily: Constants.LIST_FONT_FAMILY,
+                                    color: Constants.DOBO_GREY_COLOR,
+                                }}>
+                                    {storeRating}
+                                </Text>
+                                <IconComponent
+                                    style={{ marginHorizontal: '5%', }}
+                                    name={ImageConst["star-rating"]}
+                                    size={12} />
+                            </>
+                        }
+                    </View>
                     <Divider style={{ backgroundColor: '#CEDCCE', width: 1, height: '70%', alignSelf: "center", marginRight: 5 }} />
                     <View style={{ flexDirection: "column", marginStart: '2%', justifyContent: 'center', flex: 0.6 }}>
                         <View style={{ flexDirection: "row", alignItems: "center", marginBottom: '10%' }}>
@@ -106,9 +126,10 @@ class StoreListComponent extends PureComponent {
         return (
             <FlatList
                 ItemSeparatorComponent={this.renderSeparatorView}
+                showsVerticalScrollIndicator={false}
                 data={this.props.data}
                 renderItem={this.renderComponent}
-                keyExtractor={(item) => item.store.id.toString()}
+                keyExtractor={(item) => item.store ? item.store.id.toString() : item.id.toString()}
             >
             </FlatList>
         )

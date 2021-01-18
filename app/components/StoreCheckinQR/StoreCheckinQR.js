@@ -65,7 +65,7 @@ class StoreCheckinQR extends Component {
                 lng: lng
             }
             const isValid = await validateLocationFromStore(coords); //TODO: use this flag for validation in below IF
-            if (true) {
+            if (isValid) {
                 let checkinResponse = await Storecheckins(data)
                 console.log('Checkin rsponse>>>', checkinResponse)
                 if (checkinResponse.status == 201) {

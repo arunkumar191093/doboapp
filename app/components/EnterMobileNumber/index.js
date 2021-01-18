@@ -194,7 +194,7 @@ class EnterMobileNumber extends Component {
                         borderRadius: 30,
                         height: '20%'
                     }}
-                    titleStyle={{ fontSize: 16 }}
+                    titleStyle={{ fontSize: 16,fontFamily: Constants.LIST_FONT_FAMILY }}
                     onPress={() => this.onContinue()}
                 />
             </ScrollView>
@@ -223,6 +223,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: 'flex-start',
         alignContent: "center",
+        paddingTop: 20
         //backgroundColor: 'grey'
     },
     dropDown: {
@@ -241,6 +242,7 @@ const styles = StyleSheet.create({
         paddingBottom: 5,
         height: Platform.OS === 'ios' ? '20%' : '100%',
         alignSelf: 'center',
+        fontFamily: Constants.LIST_FONT_FAMILY
     },
     continueButton: {
         borderRadius: 30,
@@ -248,7 +250,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         borderWidth: 1,
         borderColor: '#fff',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        fontFamily: Constants.LIST_FONT_FAMILY
     },
     continueText: {
         color: 'white',

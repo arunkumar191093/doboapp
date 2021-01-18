@@ -35,10 +35,10 @@ class MyCheckinList extends PureComponent {
 
     renderComponent = ({ item }) => {
         let address = (item.storeAddress.address1 || '') + (item.storeAddress.address2 || '')
-        let imageURL = item.iconURL !== null ? (Constants.imageResBaseUrl + item.iconURL) : Constants.DEFAULT_STORE_ICON
+        let imageURL = item.iconURL !== null ? item.iconURL.indexOf('http') > -1 ? item.iconURL : (Constants.imageResBaseUrl + item.iconURL) : Constants.DEFAULT_STORE_ICON
         let lastCheckin = item.lastCheckIn
         let formattedLastCheckin = ''
-        let aggRating = item.aggStoreRating || '5.0';
+        let aggRating = item.aggStoreRating || '';
         if (lastCheckin !== undefined) {
             formattedLastCheckin = moment(lastCheckin).format('D MMM YYYY')
         }
@@ -62,18 +62,22 @@ class MyCheckinList extends PureComponent {
                         </View>
                     </View>
                     <View style={{ flex: 0.3, flexDirection: 'row', marginTop: '3%', alignSelf: 'flex-start' }}>
-                        <Text style={{
-                            fontSize: Constants.LIST_FONT_SIZE_ADDRESS,
-                            fontFamily: Constants.LIST_FONT_FAMILY,
-                            color: Constants.DOBO_GREY_COLOR,
-                        }}>
-                            {aggRating}
-                        </Text>
-                        <IconComponent
-                            style={{ marginHorizontal: '5%', }}
-                            name={ImageConst["star-rating"]}
-                            size={12} />
-
+                        {
+                            !!aggRating &&
+                            <>
+                                <Text style={{
+                                    fontSize: Constants.LIST_FONT_SIZE_ADDRESS,
+                                    fontFamily: Constants.LIST_FONT_FAMILY,
+                                    color: Constants.DOBO_GREY_COLOR,
+                                }}>
+                                    {aggRating}
+                                </Text>
+                                <IconComponent
+                                    style={{ marginHorizontal: '5%', }}
+                                    name={ImageConst["star-rating"]}
+                                    size={12} />
+                            </>
+                        }
                     </View>
                 </View>
                 <View style={styles.checkinDetailRow}>

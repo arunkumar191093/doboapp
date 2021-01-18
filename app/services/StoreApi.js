@@ -33,7 +33,40 @@ export const GetStoresByFilter = async function (data, page = 1) {
     };
     return returnObj;
   } catch (error) {
-    console.error(error);
+    console.log(error);
+  }
+};
+
+export const GetStoresProductsByFilter = async function (data, storeId, isStoreCheckin) {
+  let path = `/api/StorePageDetails/${storeId}?checkin=${isStoreCheckin}`;
+  let url = baseURL + path;
+  console.log(url);
+  try {
+    let token = await getUserToken();
+    let response = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify(data), // data can be `string` or {object}!
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+    });
+    let responseStatus = response.status;
+    console.log('Status Code for ' + path + ':' + responseStatus);
+    var responseJson = [];
+    try {
+      responseJson = await response.json();
+    } catch (error) {
+      console.log('Error while parsning response json', error);
+    }
+    console.log('Success:', JSON.stringify(responseJson));
+    let returnObj = {
+      status: responseStatus,
+      responseJson: responseJson,
+    };
+    return returnObj;
+  } catch (error) {
+    console.log(error);
   }
 };
 
@@ -67,7 +100,7 @@ export const GetStoresUsingGPS = async function (data) {
     };
     return returnObj;
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 };
 
@@ -97,7 +130,7 @@ export const GetStoreAds = async function (storeID) {
     };
     return returnObj;
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 };
 
@@ -131,7 +164,7 @@ export const GetStoresByCategory = async function (categoryID, data) {
     };
     return returnObj;
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 };
 
@@ -165,7 +198,7 @@ export const Storecheckins = async function (data, checkinId) {
     };
     return returnObj;
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 };
 
@@ -195,7 +228,7 @@ export const GetStoreBanners = async function (storeId) {
     };
     return returnObj;
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 };
 export const GetStoresByCampaign = async function (data) {
@@ -229,7 +262,7 @@ export const GetStoresByCampaign = async function (data) {
     };
     return returnObj;
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 };
 
@@ -259,7 +292,36 @@ export const GetStoreByStoreAds = async function (id) {
     };
     return returnObj;
   } catch (error) {
-    console.error(error);
+    console.log(error);
+  }
+};
+export const GetStoreByProductId = async function (id) {
+  let path = `/api/Stores/GetStoreByProduct/${id}`;
+  let url = baseURL + path;
+  console.log(url);
+  try {
+    let token = await getUserToken();
+    let response = await fetch(url, {
+      headers: {
+        'Authorization': 'Bearer ' + token,
+      }
+    });
+    let responseStatus = response.status;
+    console.log('Status Code for ' + path + ':' + responseStatus);
+    var responseJson = undefined;
+    try {
+      responseJson = await response.json();
+    } catch (error) {
+      console.log('Error while parsning response json', error);
+    }
+    console.log('Success:', JSON.stringify(responseJson));
+    let returnObj = {
+      status: responseStatus,
+      responseJson: responseJson,
+    };
+    return returnObj;
+  } catch (error) {
+    console.log(error);
   }
 };
 
@@ -289,7 +351,7 @@ export const GetStoreById = async function (id) {
     };
     return returnObj;
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 };
 
@@ -319,7 +381,7 @@ export const GetStorePageDetails = async function (id, checkin = false) {
     };
     return returnObj;
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 };
 
@@ -349,7 +411,7 @@ export const GetProductsDetails = async function (id) {
     };
     return returnObj;
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 };
 
@@ -379,6 +441,6 @@ export const GetStoreAdDetails = async function (id) {
     };
     return returnObj;
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 };

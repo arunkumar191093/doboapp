@@ -9,11 +9,12 @@ const ModalPopUp = ({
   onClose = () => { },
   canClose = true,
   showClose = true,
-  closeIcon = 'close-circle'
-
+  closeIcon = 'close-circle',
+  visible = true
 }) => {
   return (
-    <Modal animationType="fade" presentationStyle='overFullScreen' style={{ ...style, ...styles.modalContainer }} onRequestClose={canClose ? onClose : null}>
+    <Modal animationType="fade" presentationStyle='overFullScreen' style={{ ...style, ...styles.modalContainer }}
+      visible={visible} onRequestClose={canClose ? onClose : null}>
       {
         canClose && showClose ?
           <TouchableOpacity style={styles.closeBtn} onPress={canClose ? onClose : null}>

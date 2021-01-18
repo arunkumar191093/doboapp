@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
 } from 'react-native';
+import * as Constants from '../../services/Constants';
 
 const PasscodeTextInput = React.forwardRef(({ autoFocus, onSubmitEditing, onChangeText, value, onKeyPress }, ref) => {
 
@@ -39,7 +40,8 @@ const styles = {
     fontSize: 20,
     padding: 5,
     margin: 5,
-    marginBottom: 0
+    marginBottom: 0,
+    fontFamily: Constants.LIST_FONT_FAMILY
   },
   underlineStyle: {
     width: 30,

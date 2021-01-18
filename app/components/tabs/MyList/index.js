@@ -10,7 +10,7 @@ import * as Constants from '../../../services/Constants'
 import NoDataFound from '../../Common/NoDataFound'
 import { DataProvider } from 'recyclerlistview'
 import LayoutProvider from './LayoutProvider'
-import { GetStoreByStoreAds } from '../../../services/StoreApi'
+import { GetStoreByStoreAds, GetStoreByProductId } from '../../../services/StoreApi'
 import * as likeActions from '../../../actions/like'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -119,7 +119,7 @@ class MyList extends Component {
                 )
             }
             else {
-                return <NoDataFound message='User List is Empty' />
+                return <NoDataFound message='Your List is waiting for your deal and product likes!!' />
             }
         }
         else {
@@ -153,10 +153,27 @@ class MyList extends Component {
             }
             entityType = EntityType.Offer
         }
+        else if (data.type === 'PRODUCT_ITEM') {
+            console.log('Data of Image selected STORE_ITEM Id>>', data.values.product.id);
+            let response = await GetStoreByProductId(data.values.product.id)
+            if (response.status === 200) {
+                let jsonStoreData = response.responseJson;
+                console.log('storeData>>', jsonStoreData)
+                if (jsonStoreData != undefined)
+                    this.props.navigation.navigate('StorePage', { listVal: jsonStoreData })
+            } else {
+                Alert.alert('No Store Found')
+            }
+            entityType = EntityType.FeatureProduct
+        }
         let DataId
         if (data.type === 'STORE_ITEM') {
             DataId = data.values.storeAd.id
-        } else {
+        }
+        else if (data.type === 'PRODUCT_ITEM') {
+            DataId = data.values.product.id
+        }
+        else {
             DataId = data.values.campaign.id
         }
         let response = await createClickUserAction(entityType, DataId)
@@ -192,6 +209,20 @@ class MyList extends Component {
             }
             entityType = EntityType.Offer
         }
+        else if (data.type === 'PRODUCT_ITEM') {
+            if (data.values.product.mediaType == 0) {
+                let replaceUrl = data.values.product.media.replace(/\\/gi, '/')
+                let firstUrl = replaceUrl.split(',')[0];
+                let finalUrl = firstUrl && firstUrl.indexOf('http') > -1 ? firstUrl : Constants.baseURL + firstUrl;
+                sharedData = finalUrl;
+            }
+            else {
+                let replaceUrl = data.values.campaign.media
+                sharedData = replaceUrl
+                isVideo = true
+            }
+            entityType = EntityType.FeatureProduct
+        }
         else if (data.type === 'CN_ITEM') {
             if (data.values.campaign.bannerType == 0) {
                 sharedData = Constants.baseURL + data.values.campaign.media
@@ -215,7 +246,7 @@ class MyList extends Component {
             let response = await createShareUserAction(entityType, DataId)
             console.log('Share UserAction Response', response)
         } catch (error) {
-            console.error('Could not share', error)
+            console.log('Could not share', error)
         }
     }
 }

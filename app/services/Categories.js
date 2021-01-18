@@ -29,12 +29,12 @@ export const getCategories = async function () {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }
 
 export const getBrands = async function () {
-    let path = "/api/brands"
+    let path = "/api/brands/GetBrand"
     let url = baseURL + path
     console.log(url)
     try {
@@ -59,7 +59,7 @@ export const getBrands = async function () {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }
 
@@ -89,6 +89,35 @@ export const getCategoriesForFilter = async function () {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
+    }
+}
+export const getCategoriesForFilterForStore = async function (id) {
+    let path = `/api/Categories/Stores/${id}`
+    let url = baseURL + path
+    console.log(url)
+    try {
+        let token = await getUserToken();
+        let response = await fetch(url, {
+            headers: {
+                'Authorization': 'Bearer ' + token,
+            }
+        });
+        let responseStatus = response.status
+        console.log('Status Code for ' + path + ":" + responseStatus)
+        let responseJson = [];
+        try {
+            responseJson = await response.json();
+        } catch (error) {
+            console.log('Error while parsning response json', error);
+        }
+        console.log('Success:', JSON.stringify(responseJson));
+        let returnObj = {
+            status: responseStatus,
+            responseJson: responseJson,
+        };
+        return returnObj;
+    } catch (error) {
+        console.log(error);
     }
 }

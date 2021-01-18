@@ -19,8 +19,10 @@
 		4BC32F1F6228478CA3000078 /* libPods-doboappTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AD40A09B199D97C019ACAF3E /* libPods-doboappTests.a */; };
 		53EF3485ACC84C1597243EBE /* Roboto.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0830EE99334345AA9A241F4C /* Roboto.ttf */; };
 		647E10928D4A5639331938C2 /* libPods-doboapp-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 20D74BCF726B6DD23C87638C /* libPods-doboapp-tvOS.a */; };
+		6E727A4625716A290062FDEB /* Montserrat-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6E727A4425716A290062FDEB /* Montserrat-SemiBold.otf */; };
+		6E727A4725716A290062FDEB /* Montserrat-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6E727A4525716A290062FDEB /* Montserrat-Medium.otf */; };
+		A4687251C58E564776545BD1 /* libPods-doboapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 38068BBF46FB1BDE3C098313 /* libPods-doboapp.a */; };
 		AF70F8FD3546906ABA70047E /* libPods-doboapp-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 46D3EFE35060F2BC2B9E7F72 /* libPods-doboapp-tvOSTests.a */; };
-		CC675DC95580450A93CA4F95 /* libPods-doboapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 38068BBF46FB1BDE3C098313 /* libPods-doboapp.a */; };
 		EAF7438103324E5D99016337 /* rubicon-icon-font.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6F605E10BAD8499180F88B79 /* rubicon-icon-font.ttf */; };
 		F06D07E225DE424481D4AA2C /* Roboto_medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 512ACB97387744ECAF34557A /* Roboto_medium.ttf */; };
 		F97174FB23FD473800AB3E9A /* Montserrat-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = F97174FA23FD473700AB3E9A /* Montserrat-Regular.otf */; };
@@ -70,6 +72,8 @@
 		512ACB97387744ECAF34557A /* Roboto_medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Roboto_medium.ttf; path = "../node_modules/native-base/Fonts/Roboto_medium.ttf"; sourceTree = "<group>"; };
 		5FC3E3CCDA49C5E3A5FE8EC7 /* Pods-doboappTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-doboappTests.release.xcconfig"; path = "Target Support Files/Pods-doboappTests/Pods-doboappTests.release.xcconfig"; sourceTree = "<group>"; };
 		6B8B9668BAD641C2977C8E20 /* Zocial.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Zocial.ttf; path = "../node_modules/native-base/Fonts/Zocial.ttf"; sourceTree = "<group>"; };
+		6E727A4425716A290062FDEB /* Montserrat-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Montserrat-SemiBold.otf"; path = "../android/app/src/main/assets/fonts/Montserrat-SemiBold.otf"; sourceTree = "<group>"; };
+		6E727A4525716A290062FDEB /* Montserrat-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Montserrat-Medium.otf"; path = "../android/app/src/main/assets/fonts/Montserrat-Medium.otf"; sourceTree = "<group>"; };
 		6E7C803A9EDE1AC813C12896 /* Pods-doboapp-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-doboapp-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-doboapp-tvOSTests/Pods-doboapp-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
 		6F605E10BAD8499180F88B79 /* rubicon-icon-font.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "rubicon-icon-font.ttf"; path = "../node_modules/native-base/Fonts/rubicon-icon-font.ttf"; sourceTree = "<group>"; };
 		71B709D86B8644A8A3E70F28 /* Entypo.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Entypo.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Entypo.ttf"; sourceTree = "<group>"; };
@@ -113,7 +117,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CC675DC95580450A93CA4F95 /* libPods-doboapp.a in Frameworks */,
+				A4687251C58E564776545BD1 /* libPods-doboapp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -221,6 +225,8 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				6E727A4525716A290062FDEB /* Montserrat-Medium.otf */,
+				6E727A4425716A290062FDEB /* Montserrat-SemiBold.otf */,
 				13B07FAE1A68108700A75B9A /* doboapp */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* doboappTests */,
@@ -406,6 +412,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E727A4625716A290062FDEB /* Montserrat-SemiBold.otf in Resources */,
+				6E727A4725716A290062FDEB /* Montserrat-Medium.otf in Resources */,
 				F971750224054ECF00AB3E9A /* Montserrat-ExtraBold.otf in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
@@ -779,12 +787,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = doboapp/Dobo.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 8;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = 7QHZRAQKYZ;
 				INFOPLIST_FILE = doboapp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.1.01;
+				MARKETING_VERSION = 1.1.06;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -805,11 +814,12 @@
 				CODE_SIGN_ENTITLEMENTS = doboapp/Dobo.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = 7QHZRAQKYZ;
 				INFOPLIST_FILE = doboapp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.1.01;
+				MARKETING_VERSION = 1.1.06;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -964,6 +974,7 @@
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -979,7 +990,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				HEADER_SEARCH_PATHS = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -1017,6 +1029,7 @@
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -1025,7 +1038,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				HEADER_SEARCH_PATHS = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;

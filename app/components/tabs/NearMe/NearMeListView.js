@@ -39,7 +39,7 @@ class NearMeListView extends Component {
                         totalWidth={120}
                         totalHeight={60}
                         type='up-down'
-                        iconStyle={{ color: 'white' }}
+                        iconStyle={{ color: 'black' }}
                         inputStyle={{ fontSize: 16 }}
                         minValue={6}
                         editable={false}

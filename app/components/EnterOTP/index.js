@@ -315,7 +315,7 @@ export default class EnterOTP extends React.Component {
 							marginTop: '10%',
 							borderRadius: 30
 						}}
-						titleStyle={{ fontSize: 16 }}
+						titleStyle={{ fontSize: 16, fontFamily: Constants.LIST_FONT_FAMILY }}
 						onPress={() => this.onVerify()}
 					/>
 				</View>

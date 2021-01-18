@@ -12,6 +12,8 @@ import {
 import { Divider, Button } from 'react-native-elements';
 import * as Constants from '../../../services/Constants';
 import moment from 'moment';
+import IconComponent from '../../Common/IconComponent';
+import { ImageConst } from '../../../services/ImageConstants';
 
 class NearMeListComponent extends PureComponent {
     constructor(props) {
@@ -79,11 +81,12 @@ class NearMeListComponent extends PureComponent {
             //closeTimeFormat = moment(this.storeDetails.closingTime,"LTS").format("HH:mm");
             closeTimeFormat = 'Closes' + ' ' + moment(item.store.closingTime, "LTS").utcOffset('+05:30').format('LT');
         }
+        let mediaURL = item.store.retailer && item.store.retailer.iconURL && item.store.retailer.iconURL.indexOf('http') > -1 ? item.store.retailer.iconURL : Constants.imageResBaseUrl + item.store.retailer.iconURL
         return (
             <TouchableWithoutFeedback onPress={() => this.onItemClickHandler(item)}>
                 <View style={styles.listRow}>
                     <Image style={styles.listImage}
-                        source={{ uri: Constants.imageResBaseUrl + item.store.retailer.iconURL || Constants.DEFAULT_STORE_ICON }} />
+                        source={{ uri: mediaURL || Constants.DEFAULT_STORE_ICON }} />
                     <View style={styles.rowText}>
                         <View style={{ flex: 1 }}>
                             <Text numberOfLines={3}
@@ -123,7 +126,7 @@ class NearMeListComponent extends PureComponent {
                             </Text>
                         </View>
 
-                        <View style={{ flex: 1, marginTop: '5%' }}>
+                        <View style={{ flex: 1 }}>
                             <Button
                                 title={distanceInKM}
                                 onPress={() => { this.onOpenMapHandler(item) }}

@@ -125,6 +125,7 @@ class Home extends Component {
     }
 
     checkForCheckout = async () => {
+        console.log('before checkForCheckout in home')
         let storesData = await checkForCheckinValidity();
         console.log('expired stores', storesData.expired);
         this.setState({
@@ -246,6 +247,7 @@ class Home extends Component {
     getUserLocation = async () => {
         console.log('Home::getUserLocation()')
         try {
+            console.log('before getLocation method')
             let coords = await getLocation()
             console.log('coords>>>>', coords)
             this.setState({ locationPermissionDeny: false })
@@ -254,8 +256,8 @@ class Home extends Component {
             // var lat = 12.9599062 //parseFloat(coords.latitude)
             // var long = 77.64154429999999 //parseFloat(coords.longitude)
             //yashwantpur
-            var lat = 13.0250302 //parseFloat(coords.latitude) //13.0250302
-            var long = 77.53402419999999 //parseFloat(coords.longitude) //77.53402419999999
+            var lat = parseFloat(coords.latitude) //13.0250302
+            var long = parseFloat(coords.longitude) //77.53402419999999
             console.log('Your current position is:');
             console.log(`Latitude : ${lat}`);
             console.log(`Longitude: ${long}`);
@@ -272,7 +274,7 @@ class Home extends Component {
             //     // Alert.alert('pradeep')
             //     this.setState({ locationPermissionDeny: true })
             // }
-            // Alert.alert(error.message)
+            Alert.alert(error.message+' Please provide location access by going to settings of your device.')
             console.log('locationPermissionDeny', error)
             this.setState({ locationPermissionDeny: true })
         };
@@ -333,7 +335,9 @@ class Home extends Component {
         if (data != undefined) {
             if (data.bannerType == 0) {
                 let replaceUrl = data.media.replace(/\\/gi, '/')
-                sharedData = Constants.baseURL + replaceUrl
+                let firstUrl = replaceUrl.split(',')[0];
+                let finalUrl = firstUrl && firstUrl.indexOf('http') > -1 ? firstUrl : Constants.baseURL + firstUrl;
+                sharedData = finalUrl
             }
             else {
                 sharedData = data.media
@@ -346,7 +350,7 @@ class Home extends Component {
                 let response = await createShareUserAction(EntityType.Campaign, data.id)
                 console.log('Share UserAction Response', response)
             } catch (error) {
-                console.error('Could not share', error)
+                console.log('Could not share', error)
             }
         }
 
@@ -386,7 +390,7 @@ class Home extends Component {
     }
 
     onApplyFilter = async (data) => {
-        console.log('Filter Options Applied>', JSON.stringify(data))
+        console.log('Filter Options Applied>', data)
         this.filterOptions = data
         //this.setState({ filterOptions: data })
         await this.getStoresByFliter(data)
@@ -415,15 +419,34 @@ class Home extends Component {
                     if (element.checked === true) {
                         body.Categories.push({ id: element.id })
                     }
+                    if (element.children && element.children.length) {
+                        element.children.forEach((child) => {
+                            if (child.checked) {
+                                body.Categories.push({ id: child.id })
+                            }
+                            if (child.children && child.children.length) {
+                                child.children.forEach((subChild) => {
+                                    if (subChild.checked) {
+                                        body.Categories.push({ id: subChild.id })
+                                    }
+                                })
+                            }
+                        })
+                    }
                 });
 
             }
             else if (element.value === 'Brands') {
                 element.details.forEach(element => {
                     if (element.checked === true) {
-                        body.Brands.push({ id: element.id })
+                        element.brandIds.forEach((bId) => {
+                            body.Brands.push({ id: bId })
+                        })
                     }
                 });
+            }
+            else if (element.value === 'Sort by') {
+                body.SortBy = element.selectedIndex > 0 ? element.details[element.selectedIndex].value : 'Nearby'
             }
         });
 
@@ -444,7 +467,6 @@ class Home extends Component {
         if (this.state.isFilterModalVisible) {
             console.log('Filter Options State', JSON.stringify(this.filterOptions))
             return (
-
                 <Filter
                     onModalClose={() => this.setState({ isFilterModalVisible: false })}
                     onApplyFilter={this.onApplyFilter}
@@ -452,7 +474,6 @@ class Home extends Component {
                     filterOptions={this.filterOptions}
 
                 />
-
             );
         } else {
             return (null);
@@ -625,12 +646,12 @@ class Home extends Component {
     }
 
     renderCarouselItem = ({ item, index }) => {
-
+        let mediaUrlValue = item.media && item.media.indexOf('http') > -1 ? item.media : Constants.imageResBaseUrl + item.media;
         if (item.bannerType === 0) {
             return (
                 <ImageCard
                     key={index}
-                    mediaUrl={Constants.imageResBaseUrl + item.media}
+                    mediaUrl={mediaUrlValue}
                     data={item}
                     onWishlistClickHandler={(data) => this.onWishlistClickHandler(data)}
                     onShareClickHandler={(data) => this.onShareClickHandler(data)}
@@ -805,7 +826,7 @@ class Home extends Component {
                         </View>
                     }
                 </View>
-                <View style={{ ...styles.category, height: '16%' }}>
+                <View style={{ ...styles.category }}>
                     <View style={{ flex: 4, paddingBottom: 4, paddingTop: 8, marginLeft: 4 }}>
                         <CategoryListComponent
                             data={this.state.categories}
@@ -822,15 +843,21 @@ class Home extends Component {
                                     style={styles.categoryImage} />
                                 <Text style={{
                                     fontFamily: Constants.LIST_FONT_FAMILY,
-                                    color: Constants.DOBO_GREY_COLOR
+                                    color: Constants.DOBO_GREY_COLOR,
+                                    fontSize: 12,
+                                    paddingLeft: 2
                                 }}>Filter</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
                 </View>
-                <StoreListComponent data={this.state.storeList}
-                    onCurrentItemClick={(item) => this.currentListItemClick(item)}
-                />
+                {
+                    !!this.state.storeList && !!this.state.storeList.length ?
+                        <StoreListComponent data={this.state.storeList}
+                            onCurrentItemClick={(item) => this.currentListItemClick(item)}
+                        /> :
+                        <Text style={styles.noResultMsg}>We are yet to cover this location/filter criteria!</Text>
+                }
                 {!this.state.isStoreCheckin ? this.showcolapsableView() : this.showCheckout()}
                 {this.openModal()}
                 {this.state.showRating ? this.renderRating() : null}
@@ -865,6 +892,8 @@ const styles = StyleSheet.create({
         // alignContent: 'center',
         // alignItems: 'center',
         marginEnd: '10%',
+        paddingTop: 10,
+        paddingRight: 8
         //marginStart: '5%'
     },
     fabButton: {
@@ -899,6 +928,13 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.2)',
         alignItems: 'center',
         justifyContent: 'center'
+    },
+    noResultMsg: {
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        fontSize: 20,
+        fontFamily: Constants.LIST_FONT_FAMILY,
+        padding: '20%'
     }
 });
 

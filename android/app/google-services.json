@@ -1,58 +1,51 @@
 {
   "project_info": {
-    "project_number": "1044454681235",
-    "firebase_url": "https://copper-bot-268616.firebaseio.com",
-    "project_id": "copper-bot-268616",
-    "storage_bucket": "copper-bot-268616.appspot.com"
+    "project_number": "697683041766",
+    "firebase_url": "https://dobo-app-production.firebaseio.com",
+    "project_id": "dobo-app-production",
+    "storage_bucket": "dobo-app-production.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1044454681235:android:265ba68fade36897323b66",
+        "mobilesdk_app_id": "1:697683041766:android:3e61e623c317f2b0984a27",
         "android_client_info": {
           "package_name": "com.augmentolabs.dobo"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1044454681235-83v80jdg9tuov79l5dn6q38ou0calknd.apps.googleusercontent.com",
+          "client_id": "697683041766-70t6rjhfa32jd0espnl5n5e2mji2b597.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.augmentolabs.dobo",
-            "certificate_hash": "523edc40ae2058812c8d1648857f0dc597a98f59"
+            "certificate_hash": "c042e19cd76aec885aff26fe49a40b22caa0317b"
           }
         },
         {
-          "client_id": "1044454681235-0uush6cqq6prs3ak57qk8kku23v2bcon.apps.googleusercontent.com",
+          "client_id": "697683041766-vpkh2ifog4fdgorqio9m6k2d61k5duob.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.augmentolabs.dobo",
-            "certificate_hash": "8b6ba5b5fca4640509bf5133d74b2f53565f4d9a"
+            "certificate_hash": "086818db4fffed845bd5831ff9a58f5efd15ef5a"
           }
         },
         {
-          "client_id": "1044454681235-pgs6q59l19kotv82go081is6qpp02npl.apps.googleusercontent.com",
+          "client_id": "697683041766-j550e9ji3u0ild3cm66v2asmmive6h3q.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBHxkWX1PDsnyhDgMr259LoWplhAlV4_nY"
+          "current_key": "AIzaSyDEXYmtoskI6cZQjfLHsm_0JvzwQBXKKAA"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1044454681235-pgs6q59l19kotv82go081is6qpp02npl.apps.googleusercontent.com",
+              "client_id": "697683041766-j550e9ji3u0ild3cm66v2asmmive6h3q.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "1044454681235-61ufv504lq2uterni4uhmcr3m4elh7pv.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.augmentolabs.dobo"
-              }
             }
           ]
         }

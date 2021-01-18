@@ -57,7 +57,7 @@ class NearMeMapView extends Component {
         return (
             <View style={styles.container}>
                 <MapView
-                    zoomEnabled={false}
+                    zoomEnabled={true}
                     ref={map => {
                         this.map = map
                     }}
@@ -96,7 +96,7 @@ class NearMeMapView extends Component {
                     totalWidth={120}
                     totalHeight={60}
                     type='up-down'
-                    iconStyle={{ color: 'white' }}
+                    iconStyle={{ color: 'black' }}
                     inputStyle={{ fontSize: 16 }}
                     minValue={6}
                     editable={false}
@@ -116,13 +116,13 @@ class NearMeMapView extends Component {
                     overlayStyle={{
                         position: 'absolute',
                         left: 0,
-                        bottom: Constants.BOTTOM_TAB_HEIGHT,
+                        bottom: 0,
                         width: Constants.SCREEN_WIDTH,
-                        height: '55%',
+                        height: Constants.SCREEN_HEIGHT/2,
                         padding: 0,
                         backgroundColor: 'transparent'
                     }}
-                //onBackdropPress={() => this.setState({ isVisible: false })}
+                onBackdropPress={() => this.setState({ isVisible: false })}
                 >
                     <StoreQuickView
                         onCancelClicked={() => this.setState({ isVisible: false })}

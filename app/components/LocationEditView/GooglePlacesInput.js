@@ -55,7 +55,8 @@ class GooglePlacesInput extends React.Component {
                         fontSize: 15,
                         lineHeight: 22.5,
                         paddingBottom: 0,
-                        flex: 1
+                        flex: 1,
+                        fontFamily: Constants.LIST_FONT_FAMILY
                     },
 
                 }}

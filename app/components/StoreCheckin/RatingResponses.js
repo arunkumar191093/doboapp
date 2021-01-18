@@ -60,12 +60,30 @@ const RatingResponses = ({
   const [isLoading, setIsLoading] = useState(false);
   const [disableRating, setDisableRating] = useState(true);
   const [repliesArr, setRepliesArr] = useState([]);
+  const [storeAggRating, setStoreAggRating] = useState('');
 
   let isDisabled = !purchaseExpRating || !productQualityRating || !storeStaffSupportRating;
 
+  const calculateAggRating = () => {
+    const { storeReviewAnalytics } = storeDetails;
+    if (storeReviewAnalytics) {
+      let total = storeReviewAnalytics.productQualityAverage + storeReviewAnalytics.purchaseExpAverage + storeReviewAnalytics.storeStaffSupportAverage;
+      let aggStoreRating = (total / 3).toFixed(1);
+      setStoreAggRating(aggStoreRating.toString());
+    }
+    else {
+      setStoreAggRating('');
+    }
+
+  }
+
+  useEffect(() => {
+    calculateAggRating();
+  }, [storeDetails])
 
   const { retailer, storeAddress, storeDescription } = storeDetails;
-  let imageURL = storeDetails.iconURL !== null ? (Constants.imageResBaseUrl + storeDetails.iconURL) : Constants.DEFAULT_STORE_ICON;
+  console.log('storeDetails in ratingresponse', storeDetails)
+  let imageURL = storeDetails.iconURL !== null ? storeDetails.iconURL.indexOf('http') > -1 ? storeDetails.iconURL : (Constants.imageResBaseUrl + storeDetails.iconURL) : Constants.DEFAULT_STORE_ICON;
 
   useEffect(() => {
     if (review) {
@@ -179,15 +197,21 @@ const RatingResponses = ({
             </View>
           </View>
           <View style={{ flexDirection: 'row' }}>
-            <Text style={styles.storeStarRating}>{storeDetails.rating || '5.0'}</Text>
-            <Icon
-              name='star'
-              color="#ffc106"
-              size={14}
-              style={{
-                fontFamily: Constants.LIST_FONT_FAMILY
-              }}
-            />
+            {
+              !!storeAggRating &&
+              <>
+                <Text style={styles.storeStarRating}>{storeAggRating}</Text>
+                <Icon
+                  name='star'
+                  color="#ffc106"
+                  size={14}
+                  style={{
+                    fontFamily: Constants.LIST_FONT_FAMILY
+                  }}
+                />
+              </>
+            }
+
           </View>
         </View>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 80 }}>

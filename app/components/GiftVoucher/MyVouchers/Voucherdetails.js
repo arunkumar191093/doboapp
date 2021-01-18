@@ -85,7 +85,7 @@ class Voucherdetails extends Component {
                 let result = await shareGiftVoucher(sharedData, shareDetails)
                 console.log('shared with App ', result.app)
             } catch (error) {
-                console.error('Could not share', error)
+                console.log('Could not share', error)
             }
 
         }
@@ -114,7 +114,7 @@ class Voucherdetails extends Component {
         const ValidToDateToFormat = moment(this.details.endTime).format("DD MMM YYYY");
         //const ValidToDateToFormat = moment(afterToFormat, 'MM/DD/YYYY').format("DD MMM YYYY");
         console.log('MyVoucherDetails', this.details)
-
+        let mediaURL = this.details && this.details.voucherBanner && this.details.voucherBanner.indexOf('http') > -1 ? this.details.voucherBanner : Constants.imageResBaseUrl + this.details.voucherBanner;
         return (
             <View style={{ flex: 1 }}>
                 <Loader loading={this.state.loading} />
@@ -125,7 +125,7 @@ class Voucherdetails extends Component {
                         <View style={{ margin: '3%' }}>
                             <Image
                                 style={{ height: 200, width: '100%' }}
-                                source={{ uri: Constants.imageResBaseUrl + this.details.voucherBanner }}
+                                source={{ uri: mediaURL }}
                                 resizeMode='stretch'>
                             </Image>
                         </View>

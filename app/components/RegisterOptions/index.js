@@ -58,7 +58,7 @@ class RegisterOptions extends Component {
             // await AsyncStorage.setItem("avatar", profile.avatar);
             this.navigateTo()
         } catch (error) {
-            console.error(error)
+            console.log(error)
         }
         // const [profile, error] = await facebookService.fetchProfile()
         // if(error)

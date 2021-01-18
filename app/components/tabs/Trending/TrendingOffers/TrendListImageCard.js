@@ -5,12 +5,13 @@ import IconComponent from '../../../Common/IconComponent'
 import { ImageConst } from '../../../../services/ImageConstants'
 
 const TrendListImageCard = (props) => {
+    const mediaUrl = props.data && props.data.values && props.data.values.media && props.data.values.media.indexOf('http') > -1 ? props.data.values.media : Constants.imageResBaseUrl + props.data.values.media;
     return (
         <View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
             <TouchableWithoutFeedback onPress={() => props.onImageClickHandler(props.data)}>
                 <ImageBackground
                     style={{ height: props.height }}
-                    source={{ uri: Constants.imageResBaseUrl + props.data.values.media }}
+                    source={{ uri: mediaUrl }}
                     resizeMode='stretch'
                 >
                     <View style={{ flex: 1, flexDirection: 'column-reverse' }}>

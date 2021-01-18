@@ -60,6 +60,7 @@ class BuyVoucher extends Component {
 
     async getOrderId() {
         //this.startLoading();
+        console.log('this.details',this.details)
         let data = {
             "Amount": (this.data.AmountToPay) * 100,
             "Currency": "INR",
@@ -83,7 +84,7 @@ class BuyVoucher extends Component {
                 image: 'https://retailer-dobo.app/assets/images/dobologo.png',
                 // image: 'https://i.imgur.com/3g7nmJC.png',
                 currency: 'INR',
-                key: 'rzp_test_Zn985iFSe1zaER',
+                key: 'rzp_test_pfVlnju821oXsT',
                 amount: (this.data.AmountToPay * 100).toString(),
                 name: this.details.name,
                 order_id: res.attributes.id,//Replace this with an order_id created using Orders API. Learn more at https://razorpay.com/docs/api/orders.    
@@ -185,7 +186,7 @@ class BuyVoucher extends Component {
         //     description: 'Credits towards consultation',
         //     image: 'https://i.imgur.com/3g7nmJC.png',
         //     currency: 'INR',
-        //     key: 'rzp_test_Zn985iFSe1zaER',
+        //     key: 'rzp_test_pfVlnju821oXsT',
         //     amount: '1200',
         //     name: 'Acme Corp',
         //     order_id: 'order_EO3VjAAiG41QhY',//Replace this with an order_id created using Orders API. Learn more at https://razorpay.com/docs/api/orders.    
@@ -209,6 +210,7 @@ class BuyVoucher extends Component {
         // let AmountToPay = (this.details.amount) - (this.details.amount * (this.details.discount / 100));
         let AmountToPay = roundToTwoDecimalPlaces(this.data.AmountToPay)
         let Discount = roundToTwoDecimalPlaces((this.details.amount * (this.data.DiscountUpdate / 100)));
+        let mediaURL = this.details.retailer && this.details.retailer.voucherBanner && this.details.retailer.voucherBanner.indexOf('http') > -1 ? this.details.retailer.voucherBanner : Constants.imageResBaseUrl + this.details.retailer.voucherBanner
         return (
             <View style={{ flex: 1 }}>
                 <Loader
@@ -216,7 +218,7 @@ class BuyVoucher extends Component {
                 />
                 <Image
                     style={{ width: '100%', height: '40%' }}
-                    source={{ uri: Constants.imageResBaseUrl + this.details.retailer.voucherBanner }}
+                    source={{ uri: mediaURL }}
                     resizeMode='stretch'
                 />
                 <View style={{ flexDirection: 'row' }}>

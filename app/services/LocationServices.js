@@ -1,7 +1,7 @@
 import Geocoder from 'react-native-geocoding';
 import Geolocation from 'react-native-geolocation-service';
 import { Platform, PermissionsAndroid, ToastAndroid } from 'react-native';
-//import Geolocation from '@react-native-community/geolocation';
+// import Geolocation from '@react-native-community/geolocation';
 
 
 export const hasLocationPermission = async () => {
@@ -38,6 +38,20 @@ export const getLocation = async () => {
     return new Promise(
         (resolve, reject) => {
             if (!hasLocationPermissions) reject({ message: 'Permission Denied' });
+            if (Platform.OS === 'ios') {
+                console.log(Geolocation.requestAuthorization('whenInUse'))
+                Geolocation.requestAuthorization('whenInUse')
+                Geolocation.getCurrentPosition(
+                    (data) => {
+                        console.log('getLocation() data>>>', data)
+                        resolve(data.coords)
+                    },
+                    (err) => {
+                        console.log('getLocation() error:', err)
+                        reject(err)
+                    }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 3600000 }
+                );
+            }
             Geolocation.getCurrentPosition(
                 (data) => {
                     console.log('getLocation() data>>>', data)
@@ -46,7 +60,7 @@ export const getLocation = async () => {
                 (err) => {
                     console.log('getLocation() error:', err)
                     reject(err)
-                }, { enableHighAccuracy: true, timeout: 2000, maximumAge: 3600000 }
+                }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 3600000 }
             );
         }
     );

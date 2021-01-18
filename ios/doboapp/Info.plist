@@ -52,6 +52,7 @@
 		<string>fbauth</string>
 		<string>fbauth2</string>
 		<string>fbshareextension</string>
+		<string>telprompt</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
@@ -70,6 +71,8 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Allow Camera Access to DOBO app to check-in to Store</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string></string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
@@ -80,6 +83,8 @@
 	<array>
 		<string>Montserrat-ExtraBold.otf</string>
 		<string>Montserrat-Bold.otf</string>
+		<string>Montserrat-Medium.otf</string>
+		<string>Montserrat-SemiBold.otf</string>
 		<string>SimpleLineIcons.ttf</string>
 		<string>Ionicons.ttf</string>
 		<string>Montserrat-Regular.otf</string>
@@ -87,6 +92,7 @@
 		<string>AntDesign.ttf</string>
 		<string>Feather.ttf</string>
 		<string>MaterialCommunityIcons.ttf</string>
+		<string>Fontisto.ttf</string>
 		<string>MaterialIcons.ttf</string>
 		<string>FontAwesome.ttf</string>
 		<string>Roboto_medium.ttf</string>

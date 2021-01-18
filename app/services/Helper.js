@@ -9,7 +9,7 @@ import Global from './Global'
 import { getLocation } from '../services/LocationServices';
 import { Linking, Alert, Platform } from 'react-native';
 
-const MIN_DISTANCE_FROM_STORE = 10; //in metres
+const MIN_DISTANCE_FROM_STORE = 100; //in metres
 const MAX_TIME_DIFFERENCE = 1800000; // in miliseconds //30 minutes
 
 export async function requestLocationPermission() {
@@ -208,24 +208,22 @@ iOS: www.dobo.app
 
 export const getProductShareMessage = (code) => {
     let message =
-        `Join me on dobo to get this offer! Try now! Install the app and get 10% off on your first purchase!! Get rewarded on every store visit!
+        `Be the first one to try this App!
         
 Apply referral code: ${code}
         
-For Play Store install: www.dobo.app
-For iOS install: www.dobo.app
+Go to this link and add your friends to try the app: https://www.dobo.app/become-a-tester
     `
     return message
 }
 
 export const getShareMessage = (code) => {
     let message =
-        `Join me on dobo to make your offline fashion shopping hassle free! Explore deals, new arrivals, catch up with latest fashion near you. Try now! Install the app and get 10% off on your first purchase!! Get rewarded on every store visit!
+        `Be the first one to try this App!
         
 Apply referral code: ${code}
-        
-For Play Store install: www.dobo.app
-For iOS install: www.dobo.app
+
+Go to this link and add your friends to try the app: https://www.dobo.app/become-a-tester
     `
     return message
 }
@@ -255,7 +253,7 @@ const _downloadImageAndShare = async (title, message, url) => {
         if (response.info().status) {
             let base64Str = await response.base64()
             let headers = response.respInfo.headers;
-            let type = headers['Content-Type'];
+            let type = headers['Content-Type'] || headers['content-type'];
             var dataUrl = 'data:' + type + ';base64,' + base64Str;
         }
         let options = { title, message, url: dataUrl, failOnCancel: false };
@@ -425,8 +423,6 @@ export function GetDistance(lat1, lon1, lat2, lon2) {
 
 export const validateLocationFromStore = async (storeCoords) => {
     const { latitude, longitude } = await getLocation();
-    //TODO: remove hardcoded values
-    // const distance = GetDistance(latitude, longitude, storeCoords.lat || 12.9599062, storeCoords.lng || 77.64154429999999);
     const distance = GetDistance(latitude, longitude, storeCoords.lat, storeCoords.lng);
     const distanceInMetres = distance * 1000;
     console.log('validateLocationFromStore distance', distanceInMetres)
@@ -441,6 +437,7 @@ export const validateTimeDifference = (storeTime) => { //in miliseconds
 }
 
 export const checkForCheckinValidity = async () => {
+    console.log('in checkForCheckinValidity')
     let checkedInStores = await getCheckinInfo(),
         validityExpiredStores = [],
         validStores = [];
@@ -448,6 +445,7 @@ export const checkForCheckinValidity = async () => {
         checkedInStores.map((store) => {
             let isValidTime = validateTimeDifference(store.checkinAt);
             let isValidDistance = validateLocationFromStore(store.location);
+            console.log('after validateLocationFromStore in checkForCheckinValidity')
             if (!isValidTime || !isValidDistance) {
                 validityExpiredStores.push(store);
             } else {

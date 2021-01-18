@@ -21,12 +21,13 @@ class CategoryListComponent extends Component {
     }
 
     renderComponent = ({ item }) => {
+        let mediaURL = item.image && item.image.indexOf('http') > -1 ? item.image : Constants.imageResBaseUrl + item.image;
         return (
             <TouchableWithoutFeedback onPress={() => this.onItemClickHandler(item)}>
                 <View style={styles.category}>
                     <View style={styles.categoryView}>
                         <Image
-                            source={{ uri: Constants.imageResBaseUrl + item.image }}
+                            source={{ uri: mediaURL }}
                             style={styles.categoryImage}
                             resizeMode='contain' />
                         <Text style={{

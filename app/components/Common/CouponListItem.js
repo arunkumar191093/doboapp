@@ -23,7 +23,7 @@ class CouponListItem extends PureComponent {
         const { item, onUsePress } = this.props
 
         const ValidToDateToFormat = moment(item.endTime).format("DD MMM YYYY");
-        let imageURL = item.retailer != null && item.retailer.iconURL !== undefined ? (Constants.imageResBaseUrl + item.retailer.iconURL) : null
+        let imageURL = item.retailer != null && item.retailer.iconURL !== undefined ? item.retailer.iconURL.indexOf('http') > -1 ? item.retailer.iconURL : (Constants.imageResBaseUrl + item.retailer.iconURL) : null
 
         return (
             <View style={styles.CouponDetails}>

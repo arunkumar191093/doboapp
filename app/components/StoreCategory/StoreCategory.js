@@ -77,13 +77,14 @@ class StoreCategory extends Component {
 
 
     render() {
+        let mediaURL = this.value.icon && this.value.icon.indexOf('http') > -1 ? this.value.icon : Constants.imageResBaseUrl + this.value.icon;
         return (
             <View style={styles.container}>
                 <Loader
                     loading={this.state.loading}
                 />
                 <ImageBackground style={{ height: Constants.BANNER_HEIGHT }}
-                    source={{ uri: Constants.imageResBaseUrl + this.value.icon }}
+                    source={{ uri: mediaURL }}
                     resizeMode='stretch'>
                     <TouchableWithoutFeedback onPress={this.onCloseClickHandler}>
                         <View style={styles.header}>
@@ -94,12 +95,13 @@ class StoreCategory extends Component {
                 </ImageBackground>
                 <View style={{ flexDirection: 'row' }}>
                     <Text style={{ fontSize: 18, justifyContent: 'center', padding: 20, fontFamily: Constants.BOLD_FONT_FAMILY }}>Stores{' (' + this.state.storeListData.length + ')'}</Text>
-                    <View style={{ position: 'absolute', right: 0, padding: 20 }} >
+                    {/* Hiding since filter is not implemented */}
+                    {/* <View style={{ position: 'absolute', right: 0, padding: 20 }} >
                         <Icon
                             name="sliders"
                             type="feather"
                             color="grey" />
-                    </View>
+                    </View> */}
                 </View>
                 <View style={{
                     height: 1,

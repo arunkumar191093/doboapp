@@ -362,6 +362,8 @@ PODS:
     - React
   - RNCPushNotificationIOS (1.1.0):
     - React
+  - RNDeviceInfo (7.1.0):
+    - React-Core
   - RNFBApp (6.0.3):
     - Firebase/Core (~> 6.8.1)
     - React
@@ -428,6 +430,7 @@ DEPENDENCIES:
   - rn-fetch-blob (from `../node_modules/rn-fetch-blob`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
   - "RNCPushNotificationIOS (from `../node_modules/@react-native-community/push-notification-ios`)"
+  - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBAuth (from `../node_modules/@react-native-firebase/auth`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
@@ -440,7 +443,7 @@ DEPENDENCIES:
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
-  trunk:
+  https://github.com/cocoapods/specs.git:
     - boost-for-react-native
     - FBSDKCoreKit
     - FBSDKLoginKit
@@ -540,6 +543,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/async-storage"
   RNCPushNotificationIOS:
     :path: "../node_modules/@react-native-community/push-notification-ios"
+  RNDeviceInfo:
+    :path: "../node_modules/react-native-device-info"
   RNFBApp:
     :path: "../node_modules/@react-native-firebase/app"
   RNFBAuth:
@@ -617,6 +622,7 @@ SPEC CHECKSUMS:
   rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
   RNCAsyncStorage: 6b57de0f6cb0dcfd17521af1681fa39001d3efff
   RNCPushNotificationIOS: de54f074e577e684c0619d4271a5b451e8a37ee1
+  RNDeviceInfo: 2c198acf2cef2dc8e5bf2b502fdde0e7e5ef3520
   RNFBApp: 92ae594c85e82e1e68434049b2a37e1f584cf8b9
   RNFBAuth: edc2e5986b92f0dfd0076b312caf7871a1646ed8
   RNGestureHandler: 946a7691e41df61e2c4b1884deab41a4cdc3afff
@@ -631,4 +637,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: db61c248aba853247539467f4073e88a5e5fb7ee
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.7.5

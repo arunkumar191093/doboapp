@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, Alert } from 'react-native';
+import RazorpayCheckout from 'react-native-razorpay';
 import NavHeader from '../Common/NavHeader';
 import CartBag from '../Common/CartBag';
 import * as Constants from '../../services/Constants';
@@ -19,6 +20,8 @@ import {
   submitBag,
   removeBagFromStore
 } from '../../services/StoreBag';
+import { getOrderId, capturePayment, createBagOrderId } from '../../services/paymentApi';
+import { GetUserProfile } from '../../services/Api';
 import { getUserAddresses } from '../../services/UserActions';
 import { NavigationEvents } from 'react-navigation';
 import { STATUS_ENUM } from '../../services/Constants';
@@ -48,7 +51,7 @@ const CartItem = ({
   isDisabled = false,
   itemInfo = {},
   storeData = {},
-  canDelete = true,
+  canDelete = false,
   onDeleteItem = () => { },
   handleSpecificationClick = () => { }
 }) => {
@@ -57,11 +60,12 @@ const CartItem = ({
   let totalPrice = (price * quantity)
   // let discountedPrice = (totalPrice - totalPrice * (discount / 100)).toFixed(2);
   let discountedPrice = itemInfo.priceWithDiscount.toFixed(2);
-
+  let firstImg = media.split(',')[0];
+  let mediaURL = firstImg && firstImg.indexOf('http') > -1 ? firstImg : Constants.imageResBaseUrl + firstImg;
   return (
     <View style={[styles.cartItemContainer, isNotAvailable ? styles.disabledCartItem : null]}>
       <Image style={styles.itemImage}
-        source={{ uri: Constants.imageResBaseUrl + media }} />
+        source={{ uri: mediaURL }} />
       <View style={styles.itemContent}>
         <View style={styles.headContent}>
           <View>
@@ -141,6 +145,7 @@ const PayNowSummary = ({ navigation }) => {
   const [userAddresses, setUserAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState({});
   const [isNewAddress, setIsNewAddress] = useState(true);
+  const [userProfileDetails, setUserProfileDetails] = useState({});
 
   let addressStr = selectedAddress.address1 && selectedAddress.city && selectedAddress.state ?
     `${selectedAddress.address1} ${selectedAddress.address2}, ${selectedAddress.city} ${selectedAddress.state}` : ''
@@ -419,10 +424,11 @@ const PayNowSummary = ({ navigation }) => {
     )
   }
 
-  const onPageFocus = () => {
+  const onPageFocus = async () => {
     console.log('bag focused');
     getBagInfo(); //TODO: uncomment if info about bag is needed
     getItemsInBag();
+    await setUserProfile();
   }
 
   const handleDeleteBag = async () => {
@@ -460,8 +466,124 @@ const PayNowSummary = ({ navigation }) => {
     setFocusPayment(payment);
   }
 
-  const handlePlaceOrder = () => {
-    console.log('order placed')
+  const setUserProfile = async () => {
+    let response = await GetUserProfile()
+    if (response.status == 200) {
+      let userProfile = response.responseJson
+      let jsonUserProfile = JSON.parse(userProfile)
+      setUserProfileDetails(jsonUserProfile);
+      console.log('Userprofile>>>', jsonUserProfile)
+    }
+  }
+
+  const callSuccessApi = async (paymentId) => {
+    // this.startLoading();
+    // let data = {
+    //     "PaymentId": paymentId
+    // }
+    // let { actions } = this.props;
+    // let response = await capturePayment(data);
+    // if (response.status == 200) {
+    //     let paymentJsonData = response.responseJson;
+    //     let jsonPaymentData = JSON.parse(paymentJsonData)
+    //     this.paymentSuccessData = jsonPaymentData;
+    //     this.stopLoading();
+    //     this.setState({ successfullPayment: true })
+    //     console.log("callSuccessApiresponse>>>", jsonPaymentData);
+    //     //this.props.navigation.navigate('Home')
+
+    // }
+    // else {
+    //     //TODO Handle the error condition to show some default Error View
+
+    // }
+    // actions.changeLoadingState(true)
+  }
+
+  const callErrorApi = async (orderId) => {
+    // this.startLoading();
+    // let data = {
+    //     "orderId": orderId
+    // }
+    // let response = await capturePayment(data);
+    // if (response.status == 200) {
+    //     let paymentJsonData = response.responseJson;
+    //     this.stopLoading();
+    //     this.setState({ failPayment: true })
+    //     console.log("callErrorApiresponse>>>", paymentJsonData);
+    //     //this.props.navigation.navigate('Home')
+
+    // }
+    // else {
+    //     //TODO Handle the error condition to show some default Error View
+
+    // }
+
+  }
+
+  const createOrderId = async () => {
+    // below data is used for internal API
+    // let data = {
+    //   "Amount": (totalPriceAfterVoucher) * 100,
+    //   "Currency": "INR",
+    //   "Reciept": Date.now(),
+    //   "Payment_Capture": 1,
+    //   "EntityId": bagId,
+    //   "EntityType": 5,
+    //   "CouponCode": ''
+    // }
+    let data = {
+      "amount": (totalPriceAfterVoucher) * 100,
+      "currency": "INR",
+      "receipt": Date.now().toString(),
+      "payment_capture": 1,
+      "notes": {
+        "notes_key_1": "My Happy Bag",
+      }
+    }
+
+    let response = await createBagOrderId(data);
+    console.log('getOrderIdData>>>', response)
+    return response;
+    // below code is used for internal API
+    // if (response.status == 200) {
+    //   let res = JSON.parse(response.responseJson);
+    //   console.log('getOrderIdData>>>', res)
+    //   // this.setState({ order_Id: res.attributes.id })
+    // }
+  }
+
+  const handlePlaceOrder = async () => {
+    const orderDetails = await createOrderId() //TODO: get the API issue resolved
+    console.log('order placed', orderDetails)
+    let options = {
+      description: '',
+      image: 'https://retailer-dobo.app/assets/images/dobologo.png',
+      // image: 'https://i.imgur.com/3g7nmJC.png',
+      currency: 'INR',
+      key: 'rzp_test_pfVlnju821oXsT',
+      amount: (totalPriceAfterVoucher).toString(),
+      name: 'My Happy Bag',
+      order_id: orderDetails.id,//Replace this with an order_id created using Orders API. Learn more at https://razorpay.com/docs/api/orders.    
+      // order_id: 'order_EQ8eLjIYPjsTvj',//Replace this with an order_id created using Orders API. Learn more at https://razorpay.com/docs/api/orders.    
+      prefill: {
+        email: userProfileDetails.email,
+        contact: userProfileDetails.phoneNumber,
+        name: userProfileDetails.name
+      },
+      theme: { color: Constants.DOBO_RED_COLOR }
+    }
+    RazorpayCheckout.open(options).then((data) => {
+      console.log('RazorpayCheckoutData>>>', data)
+      // handle success
+      // alert(`Success: ${data.razorpay_payment_id}`);
+      let paymentId = data.razorpay_payment_id;
+      // callSuccessApi(paymentId);
+    }).catch((error) => {
+      console.log('RazorpayCheckoutDataError>>>', error)
+      // callErrorApi(order_Id);
+      alert(`Error: ${error.code} | ${error.description}`);
+    });
   }
 
 
@@ -565,7 +687,6 @@ const PayNowSummary = ({ navigation }) => {
                     renderItem={({ item }) => <CartItem
                       storeData={storeData}
                       itemInfo={item}
-                      canDelete={!bagStatus}
                       isDisabled={bagStatus != ''} //TODO: remove this once API is ready
                       handleSpecificationClick={() => handleSelection(item)}
                       onDeleteItem={handleDeleteProduct} />}
@@ -620,7 +741,7 @@ const PayNowSummary = ({ navigation }) => {
                   Rs. {totalPrice}
                 </Text>
               </View>
-              <View style={styles.addressRow}>
+              {/* <View style={styles.addressRow}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Text style={[styles.defaultTextHeading, styles.addressHeading]}>VOUCHER APPLIED</Text>
                   <TouchableOpacity onPress={handleAddressChange}>
@@ -630,7 +751,7 @@ const PayNowSummary = ({ navigation }) => {
                 <Text style={[styles.defaultTextHeading, styles.addressValue]}>
                   {'(No vouchers applied)'}
                 </Text>
-              </View>
+              </View> */}
               <View style={styles.addressRow}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Text style={[styles.defaultTextHeading, styles.addressHeading]}>AMOUNT TO PAY</Text>
@@ -639,7 +760,8 @@ const PayNowSummary = ({ navigation }) => {
                   Rs.{totalPriceAfterVoucher}
                 </Text>
               </View>
-              <Text style={{ ...styles.defaultTextHeading, ...styles.addressHeading, ...styles.paymentMethodHeading }}>PAYMENT METHODS</Text>
+              {/* Commented since razorpay is being used */}
+              {/* <Text style={{ ...styles.defaultTextHeading, ...styles.addressHeading, ...styles.paymentMethodHeading }}>PAYMENT METHODS</Text>
               <TouchableOpacity style={styles.paymentOption}>
                 <Text style={[styles.defaultTextHeading, styles.paymentOptionText]}>Credit/Debit Card</Text>
                 <Icon
@@ -655,7 +777,7 @@ const PayNowSummary = ({ navigation }) => {
                   color={Constants.LIGHT_GREY}
                   size={24}
                 />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               {/* <TouchableOpacity style={styles.paymentOption}>
                 <Text style={[styles.defaultTextHeading, styles.paymentOptionText]}>UPI</Text>
                 <Icon
@@ -933,7 +1055,7 @@ const styles = StyleSheet.create({
   continueBtn: {
     position: 'absolute',
     width: '100%',
-    bottom: -20,
+    bottom: -15,
     padding: 12,
     margin: 0,
     backgroundColor: Constants.DOBO_RED_COLOR

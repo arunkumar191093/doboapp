@@ -90,6 +90,7 @@ class RedeemVoucher extends Component {
     }
 
     render() {
+        let mediaURL = this.redValue && this.redValue.voucherBanner && this.redValue.voucherBanner.indexOf('http') > -1 ? this.redValue.voucherBanner : Constants.imageResBaseUrl + this.redValue.voucherBanner;
         return (
             <View style={{ flex: 1 }}>
                 <Loader
@@ -99,7 +100,7 @@ class RedeemVoucher extends Component {
                     <View style={{ flex: 1 }}>
                         <Image
                             style={{ height: 200, width: '100%' }}
-                            source={{ uri: Constants.imageResBaseUrl + this.redValue.voucherBanner }}
+                            source={{ uri: mediaURL }}
                             resizeMode='stretch'>
                         </Image>
                     </View>

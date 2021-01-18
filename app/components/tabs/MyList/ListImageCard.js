@@ -36,16 +36,19 @@ const ListImageCard = (props) => {
     }
     // console.log('Diff from start>>', startDiff)
     //console.log('Diff from end>>>', props.media)
+    let singleUrl = props.media.split(',')[0]
+    const mediaUrl = singleUrl && singleUrl.indexOf('http') > -1 ? singleUrl : Constants.imageResBaseUrl + singleUrl;
+    
     return (
         <View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
             <TouchableWithoutFeedback onPress={() => props.onImageClickHandler(props.data)}>
                 <ImageBackground
                     style={{ height: props.height }}
-                    source={{ uri: Constants.imageResBaseUrl + props.media }}
+                    source={{ uri: mediaUrl }}
                     resizeMode='cover'
                 >
                     <View style={styles.description}>
-                        <View>
+                        <View style={{ justifyContent: 'flex-start', flex: 3 }}>
                             {/* <View style={styles.expireIconView}>
                                         <IconComponent
                                             name={ImageConst['expiry-icon']}
@@ -61,20 +64,22 @@ const ListImageCard = (props) => {
                                 </Text>
                             </View>
                         </View>
-                        <TouchableOpacity style={styles.wishlist}
-                            onPress={() => props.onDeleteClickHandler(props.data)}>
-                            <IconComponent
-                                name={ImageConst['delete']}
-                                size={20}
-                            />
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.share}
-                            onPress={() => props.onShareClickHandler(props.data)}>
-                            <IconComponent
-                                name={ImageConst["share-default"]}
-                                size={20}
-                            />
-                        </TouchableOpacity>
+                        <View style={styles.actionsWrapper}>
+                            <TouchableOpacity style={styles.wishlist}
+                                onPress={() => props.onDeleteClickHandler(props.data)}>
+                                <IconComponent
+                                    name={ImageConst['delete']}
+                                    size={20}
+                                />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.share}
+                                onPress={() => props.onShareClickHandler(props.data)}>
+                                <IconComponent
+                                    name={ImageConst["share-default"]}
+                                    size={20}
+                                />
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </ImageBackground>
             </TouchableWithoutFeedback>
@@ -85,12 +90,16 @@ const styles = StyleSheet.create({
     wishlist: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'flex-start'
+        alignItems: 'flex-start',
+        maxWidth: 20,
+        marginHorizontal: 2
     },
     share: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'flex-start'
+        alignItems: 'flex-start',
+        maxWidth: 20,
+        marginHorizontal: 2
     },
     expireIconView: {
         flex: 1,
@@ -110,6 +119,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         height: '20%',
         justifyContent: 'space-between'
+    },
+    actionsWrapper: {
+        flexDirection: 'row',
+        flex: 1
     }
 });
 

@@ -143,7 +143,7 @@ class DoboTV extends Component {
             let response = await createShareUserAction(EntityType.DoboTv, data.id)
             console.log('Share UserAction Response', response)
         } catch (error) {
-            console.error('Could not share', error)
+            console.log('Could not share', error)
         }
     }
 
@@ -191,7 +191,7 @@ class DoboTV extends Component {
         else {
             YouTubeStandaloneIOS.playVideo(videoId)
                 .then(message => console.log(message))
-                .catch(errorMessage => console.error(errorMessage));
+                .catch(errorMessage => console.log(errorMessage));
         }
 
     }
@@ -207,7 +207,7 @@ class DoboTV extends Component {
             let response = await createShareUserAction(EntityType.DoboTv, item.id)
             console.log('Share UserAction Response', response)
         } catch (error) {
-            console.error('Could not share', error)
+            console.log('Could not share', error)
         }
     }
     onGridWishlistClickHandler = async (data) => {
@@ -244,7 +244,7 @@ class DoboTV extends Component {
                     key={index}
                     mediaUrl={item.media}
                     data={item}
-                    play={index === this.state.activeCarouselIndex ? true : false}
+                    play={index === this.state.activeCarouselIndex ? false : false}
                     onWishlistClickHandler={(data) => this.onWishlistClickHandler(data)}
                     onShareClickHandler={(data) => this.onShareClickHandler(data)}
                     onImageClickHandler={() => { }}

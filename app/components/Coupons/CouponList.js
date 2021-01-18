@@ -31,7 +31,7 @@ class CouponList extends Component {
     renderComponent = ({ item }) => {
         //  const afterToFormat = moment(item.endTime).add(this.details.validity, 'days').calendar();
         const ValidToDateToFormat = moment(item.endTime).format("DD MMM YYYY");
-        let imageURL = item.retailer != null && item.retailer.iconURL !== undefined ? (Constants.imageResBaseUrl + item.retailer.iconURL) : Constants.DEFAULT_DOBO_ICON
+        let imageURL = item.retailer != null && item.retailer.iconURL !== undefined ? item.retailer.iconURL.indexOf('http') > -1 ? item.retailer.iconURL : (Constants.imageResBaseUrl + item.retailer.iconURL) : Constants.DEFAULT_DOBO_ICON
 
         return (
             // <TouchableWithoutFeedback onPress={() => this.onCouponClickHandler(item)}>

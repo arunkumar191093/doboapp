@@ -26,7 +26,7 @@ export const GetUserList = async function () {
         let returnObj = { 'status': responseStatus, 'responseJson': JSON.stringify(responseJson) }
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }
 
@@ -55,7 +55,7 @@ export const GetTrend = async function () {
         let returnObj = { 'status': responseStatus, 'responseJson': JSON.stringify(responseJson) }
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }
 
@@ -86,7 +86,7 @@ export const PostUserActions = async function (data) {
         let returnObj = { 'status': responseStatus, 'responseJson': JSON.stringify(responseJson) }
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }
 
@@ -117,7 +117,7 @@ export const PutUserActions = async function (id, data) {
         let returnObj = { 'status': responseStatus, 'responseJson': JSON.stringify(responseJson) }
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }
 
@@ -148,7 +148,7 @@ export const DeleteUserActions = async function (id) {
         let returnObj = { 'status': responseStatus, 'responseJson': JSON.stringify(responseJson) }
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }
 
@@ -175,7 +175,7 @@ export const getUserAddresses = async () => {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }
 
@@ -205,7 +205,7 @@ export const addNewUserAddresses = async (data) => {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }
 
@@ -227,6 +227,6 @@ export const updateDefaultUserAddresses = async (data) => {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }

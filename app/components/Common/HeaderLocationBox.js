@@ -44,9 +44,10 @@ class HeaderLocationBox extends Component {
                     </TouchableOpacity>
                     <View style={{
                         borderStyle: 'dashed',
-                        borderWidth: 0.7,
+                        borderWidth: 0.3,
                         borderRadius: 2,
                         backgroundColor: 'white',
+                        marginTop: 4
                     }}>
                     </View>
 

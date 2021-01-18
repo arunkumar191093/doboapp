@@ -33,7 +33,7 @@ export const getOrderId = async function (data) {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 };
 
@@ -67,7 +67,34 @@ export const capturePayment = async function (data) {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
+    }
+};
+
+//Ideally this should be done in backend
+export const createBagOrderId = async function (data) {
+    let url = 'https://api.razorpay.com/v1/orders';
+    console.log('PlaceOrder Bag>>>', JSON.stringify(data));
+    try {
+        // let token = await getUserToken();
+        let token = btoa('rzp_test_pfVlnju821oXsT:nuMcsSh4Z4W59LwuT3eDb2qx');
+        let response = await fetch(url, {
+            method: 'POST',
+            body: JSON.stringify(data), // data can be `string` or {object}!
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Basic ' + token,
+            },
+        });
+        var responseJson = {};
+        try {
+            responseJson = await response.json();
+        } catch (error) {
+            console.log('Error while parsning response json', error);
+        }
+        return responseJson;
+    } catch (error) {
+        console.log(error);
     }
 };
 

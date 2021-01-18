@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, Alert, Platform } from 'react-native';
 import NavHeader from '../Common/NavHeader';
 import CartBag from '../Common/CartBag';
 import * as Constants from '../../services/Constants';
@@ -23,6 +23,10 @@ import {
 import { getUserAddresses } from '../../services/UserActions';
 import { NavigationEvents } from 'react-navigation';
 import { STATUS_ENUM } from '../../services/Constants';
+import { RadioGroup, RadioButton } from 'react-native-flexi-radio-button';
+import { CheckBox } from 'react-native-elements';
+
+let returnedItems = [];
 
 const PriceInfo = ({
   heading = '',
@@ -50,7 +54,9 @@ const CartItem = ({
   itemInfo = {},
   storeData = {},
   canDelete = true,
+  showCheckbox = false,
   onDeleteItem = () => { },
+  handleItemCheck = () => { },
   handleSpecificationClick = () => { }
 }) => {
   const { quantity, selectedSize, selectedColor, isNotAvailable } = itemInfo.baggedProduct;
@@ -58,15 +64,26 @@ const CartItem = ({
   let totalPrice = (price * quantity)
   // let discountedPrice = (totalPrice - totalPrice * (discount / 100)).toFixed(2);
   let discountedPrice = itemInfo.priceWithDiscount.toFixed(2);
-
+  let firstImg = media.split(',')[0];
+  let mediaURL = firstImg && firstImg.indexOf('http') > -1 ? firstImg : Constants.imageResBaseUrl + firstImg;
   return (
     <View style={[styles.cartItemContainer, isNotAvailable ? styles.disabledCartItem : null]}>
+      {
+        showCheckbox &&
+        <CheckBox
+          onPress={handleItemCheck}
+          checkedColor={Constants.DOBO_RED_COLOR}
+          checked={itemInfo.isChecked}
+          textStyle={{ fontFamily: Constants.LIST_FONT_FAMILY }}
+          containerStyle={{ margin: 0, padding: 2, marginLeft: 0, marginRight: 0 }}
+        />
+      }
       <Image style={styles.itemImage}
-        source={{ uri: Constants.imageResBaseUrl + media }} />
+        source={{ uri: mediaURL }} />
       <View style={styles.itemContent}>
         <View style={styles.headContent}>
           <View>
-            <Text style={styles.itemText} numberOfLines={2}>{name} ahjgsdhjag sdgsdjhga js</Text>
+            <Text style={styles.itemText} numberOfLines={2}>{name}</Text>
             {!!brand && <Text style={styles.itemSubText}>{brand.name}</Text>}
           </View>
           {
@@ -132,26 +149,26 @@ const StoreBag = ({ navigation }) => {
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [showFlashMessage, setShowFlashMessage] = useState(false);
   const [disableBottomBtns, setDisableBottomBtns] = useState(false);
-  // const [bagStatus, setBagStatus] = useState('Not Available');
-  // const [bagStatus, setBagStatus] = useState('Pending Confirmation');
   const [bagStatus, setBagStatus] = useState('');
   const [bagStatusTime, setBagStatusTime] = useState(0);
   const [screenHeightDiff, setScreenHeightDiff] = useState(150);
   const [userAddresses, setUserAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState({});
   const [isNewAddress, setIsNewAddress] = useState(true);
-
+  const [selectedDeliveryOption, setSelectedDeliveryOption] = useState(0);
+  const [selectAllItems, setSelectAllItems] = useState(false);
 
   useEffect(() => {
     if (bagStatus) {
-      setScreenHeightDiff(180);
-      bagStatus == 'Not Available' || bagStatus == 'Pending Confirmation' ? setDisableBottomBtns(true) : null;
+      bagStatus == 'Delivered' ? Constants.isIPhoneX ? setScreenHeightDiff(275) : setScreenHeightDiff(230) : Constants.isIPhoneX ? setScreenHeightDiff(235) : setScreenHeightDiff(180);
+      bagStatus == 'Not Available' || bagStatus == 'Pending Confirmation' || bagStatus == 'Returned' ? setDisableBottomBtns(true) : null;
     }
   }, [bagStatus])
 
   const [cartItems, setCartItems] = useState([]);
   const storeData = navigation.getParam('storeInfo');
   const bagId = navigation.getParam('bagId');
+  let isBuyEnabled = storeData.storeConfiguration && storeData.storeConfiguration.isBuyOnlineEnabled;
 
   // useEffect(() => {
   //   // checkPresenceInCart();
@@ -177,7 +194,9 @@ const StoreBag = ({ navigation }) => {
       console.log('getBagInfo', response)
       let { bag: bagDetails } = response.responseJson
       if (bagDetails) {
+        console.log('bagstatus', bagDetails.status)
         setBagStatus(STATUS_ENUM[bagDetails.status])
+        // setBagStatus('Delivered')
         setTotalItems(response.responseJson.countOfBaggedProducts);
         setTotalPrice(response.responseJson.finalPrice)
         setSubTotal(response.responseJson.totalPrice);
@@ -192,6 +211,7 @@ const StoreBag = ({ navigation }) => {
 
   const getItemsInBag = async (isAfterDelete) => {
     setLoading(true);
+    setSelectAllItems(false);
     const response = await getAllProductByBagId(bagId);
     if (response.status == 200) {
       console.log('getItemsInBag', response)
@@ -319,9 +339,11 @@ const StoreBag = ({ navigation }) => {
   }
 
   //handle close of add or update or select address pop-up
-  const handleAddUpdateAddressClose = () => {
+  const handleAddUpdateAddressClose = (isNewClose) => {
     getAddresses();
-    setShowAddressForm(false);
+    if (isNewClose != true) {
+      setShowAddressForm(false);
+    }
   }
 
   // this modal pop-up is used when user tries to update product qty,color,size
@@ -342,24 +364,34 @@ const StoreBag = ({ navigation }) => {
           selectedProduct.selectedColorId = item.colorId;
           break;
         case 'qty':
-          selectedProduct.quantity = item;
+          if (bagStatus == 'Delivered') {
+            selectedProduct.selectedReturnQty = item;
+          } else {
+            selectedProduct.quantity = item;
+          }
           break;
       }
       setSelectedProduct({ ...selectedProduct });
     }
-
+    let returnProducts = [];
+    for (let i = 1;i <= selectedProduct.quantity;i++) {
+      returnProducts.push(i);
+    }
     return (
       <SlideModalPopUp handleClose={() => setRenderOptions(false)}>
         <ProductOptions productSizes={selectedProduct.productSizes} selectedSize={selectedProduct.selectedSize.dimensions}
           productColors={selectedProduct.productColors} selectedColor={selectedProduct.selectedColor.colorCode}
-          productQty={[1, 2, 3, 4, 5]} selectedQty={selectedProduct.quantity}
+          productQty={[1, 2, 3, 4, 5]} selectedQty={bagStatus == 'Delivered' ? selectedProduct.selectedReturnQty : selectedProduct.quantity}
           onSizeSelect={(item) => handleOptionSelect('size', item)}
           onColorSelect={(item) => handleOptionSelect('color', item)}
+          isReturnFlow={bagStatus == 'Delivered'}
+          selectedReturnQty={bagStatus == 'Delivered' ? selectedProduct.selectedReturnQty : 0}
+          returnproductQty={bagStatus == 'Delivered' ? returnProducts : []}
           onQtySelect={(item) => handleOptionSelect('qty', item)}
         />
         <TouchableOpacity style={[
           { ...styles.addToBagBtn, width: '105%' },
-          disabled ? styles.disabledBtn : null]} onPress={() => handleOptionUpdate(selectedProduct)} disabled={disabled}>
+          disabled ? styles.disabledBtn : null]} onPress={bagStatus == 'Delivered' ? () => setRenderOptions(false) : () => handleOptionUpdate(selectedProduct)} disabled={disabled}>
           <Text style={{ color: 'white', textAlign: 'center', fontFamily: Constants.LIST_FONT_FAMILY }}>Done</Text>
         </TouchableOpacity>
       </SlideModalPopUp>
@@ -370,7 +402,7 @@ const StoreBag = ({ navigation }) => {
   const renderAddressModal = () => {
 
     console.log('selectedAddress', selectedAddress)
-    const disabled = !selectedAddress.address1 && !selectedAddress.city && !selectedAddress.state && !selectedAddress.zipCode;
+    const disabled = selectedDeliveryOption == 1 ? !selectedAddress.address1 && !selectedAddress.city && !selectedAddress.state && !selectedAddress.zipCode : false;
 
     let addressStr = selectedAddress.address1 && selectedAddress.city && selectedAddress.state ?
       `${selectedAddress.address1} ${selectedAddress.address2}, ${selectedAddress.city} ${selectedAddress.state}` : ''
@@ -378,7 +410,8 @@ const StoreBag = ({ navigation }) => {
     const handleAddressSubmit = async () => {
       setLoading(true);
       let addressId = selectedAddress.id;
-      const response = await submitBag(bagId, addressId);
+      let isDoorDelivery = selectedDeliveryOption ? true : false
+      const response = await submitBag(bagId, addressId, isDoorDelivery);
       console.log('address submitted', response)
       if (response.status == 200) {
         setRenderAddress(false);
@@ -393,11 +426,15 @@ const StoreBag = ({ navigation }) => {
       setShowAddressForm(true);
     }
 
+    const handleRadioSelect = () => {
+
+    }
+
 
     return (
       <SlideModalPopUp handleClose={() => setRenderAddress(false)}>
         <View style={{ padding: 16 }}>
-          <Text style={[styles.defaultTextHeading, { fontSize: 16, fontWeight: 'bold' }]}>Delivery Address</Text>
+          <Text style={[styles.defaultTextHeading, { fontSize: 16, fontWeight: 'bold' }]}>Delivery Options</Text>
 
           {/* <View style={{ ...styles.addressRow, marginTop: 20 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -411,20 +448,37 @@ const StoreBag = ({ navigation }) => {
             </Text>
           </View> */}
 
-          <View style={[styles.addressRow, { marginTop: 20 }]}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text style={[styles.defaultTextHeading, styles.addressHeading]}>YOUR ADDRESS</Text>
-              <TouchableOpacity onPress={handleAddressChange}>
-                <Text style={[styles.defaultTextHeading, styles.addressBtnTxt]}>{disabled ? 'ADD' : 'CHANGE'}</Text>
-              </TouchableOpacity>
-            </View>
-            <Text style={[styles.defaultTextHeading, styles.addressValue]} numberOfLines={3}>
-              {addressStr || '(Required for delivery)'}
-            </Text>
-            <Text style={[styles.defaultTextHeading, styles.addressValue]} numberOfLines={3}>
-              PINCODE - {selectedAddress.zipCode || '(Required for delivery)'}
-            </Text>
-          </View>
+          <RadioGroup
+            size={24}
+            thickness={2}
+            color={Constants.DOBO_RED_COLOR}
+            //highlightColor='#ccc8b9'
+            selectedIndex={selectedDeliveryOption}
+            onSelect={(index, value) => setSelectedDeliveryOption(index)}
+          >
+            <RadioButton value={0} key={'pickFromStore'}>
+              <Text>Pick from store</Text>
+            </RadioButton>
+            <RadioButton value={1} key={'doorDelivery'}>
+              <Text>Door Delivery</Text>
+            </RadioButton>
+          </RadioGroup>
+
+          {selectedDeliveryOption == 1 &&
+            <View style={[styles.addressRow, { marginTop: 20 }]}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Text style={[styles.defaultTextHeading, styles.addressHeading]}>YOUR ADDRESS</Text>
+                <TouchableOpacity onPress={handleAddressChange}>
+                  <Text style={[styles.defaultTextHeading, styles.addressBtnTxt]}>{disabled ? 'ADD' : 'CHANGE'}</Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={[styles.defaultTextHeading, styles.addressValue]} numberOfLines={3}>
+                {addressStr || '(Required for delivery)'}
+              </Text>
+              <Text style={[styles.defaultTextHeading, styles.addressValue]} numberOfLines={3}>
+                PINCODE - {selectedAddress.zipCode || '(Required for delivery)'}
+              </Text>
+            </View>}
 
         </View>
         <TouchableOpacity style={[
@@ -476,7 +530,58 @@ const StoreBag = ({ navigation }) => {
     navigation.navigate('PayNowSummary', { storeInfo: storeData, bagId: bagId })
   }
 
+  const goToReturn = () => {
+    navigation.navigate('RequestReturn', { bagId: bagId, returnedItems: returnedItems })
+  }
 
+  const handleItemSelection = (bagItem) => {
+    let baggedProduct = {};
+    baggedProduct = bagItem.baggedProduct;
+    bagItem.isChecked = !bagItem.isChecked;
+    let { productId, selectedReturnQty, quantity } = baggedProduct;
+    let index = returnedItems.findIndex((item) => {
+      return item.id === productId;
+    });
+    if (bagItem.isChecked) {
+      if (index > -1) {
+        returnedItems[index] = {
+          id: productId,
+          returnedQuantity: selectedReturnQty ? selectedReturnQty : quantity
+        }
+      } else {
+        returnedItems.push({
+          id: productId,
+          returnedQuantity: selectedReturnQty ? selectedReturnQty : quantity
+        })
+      }
+    } else {
+      returnedItems.splice(index, 1);
+    }
+    if (returnedItems.length === cartItems.length) {
+      setSelectAllItems(true);
+    }
+    else {
+      setSelectAllItems(false);
+    }
+    setSelectedProduct({ ...bagItem });
+  }
+
+  const handleSelectAll = (isChecked) => {
+    returnedItems = cartItems.map((item) => {
+      item.isChecked = !isChecked ? true : false;
+      if (!isChecked) {
+        let { baggedProduct: { productId } } = item;
+        return { id: productId };
+      }
+      setSelectedProduct({ ...item });
+    })
+    if (isChecked) {
+      returnedItems = [];
+    }
+    setSelectAllItems(!isChecked);
+  }
+
+  let storeIconURL = storeData.retailer && storeData.retailer.iconURL && storeData.retailer.iconURL.indexOf('http') > -1 ? storeData.retailer.iconURL : Constants.imageResBaseUrl + storeData.retailer.iconURL
   //main render 
   return (
     <View>
@@ -501,7 +606,7 @@ const StoreBag = ({ navigation }) => {
 
         <View style={styles.listRow}>
           <Image style={styles.listImage}
-            source={{ uri: Constants.imageResBaseUrl + storeData.retailer.iconURL || Constants.DEFAULT_STORE_ICON }} />
+            source={{ uri: storeIconURL || Constants.DEFAULT_STORE_ICON }} />
           <View style={styles.rowText}>
             <Text
               style={styles.listNameText}>
@@ -541,6 +646,17 @@ const StoreBag = ({ navigation }) => {
           {!!bagStatusTime && <Text style={styles.statusTime}>{bagStatusTime} min ago</Text>}
         </View>
       }
+      {
+        bagStatus == 'Delivered' &&
+        <CheckBox
+          title={'Return entire bag'}
+          onPress={() => handleSelectAll(selectAllItems)}
+          checkedColor={Constants.DOBO_RED_COLOR}
+          checked={selectAllItems}
+          fontFamily={Constants.LIST_FONT_FAMILY}
+          containerStyle={{ backgroundColor: '#fff', borderWidth: 0, margin: 0, borderBottomColor: '#eaf0f2', borderBottomWidth: 1 }}
+        />
+      }
 
 
       <View style={{ height: Constants.SCREEN_HEIGHT - screenHeightDiff, paddingBottom: 40 }}>
@@ -552,8 +668,10 @@ const StoreBag = ({ navigation }) => {
                 storeData={storeData}
                 itemInfo={item}
                 canDelete={!bagStatus}
+                showCheckbox={bagStatus == 'Delivered'}
                 isDisabled={bagStatus != ''} //TODO: remove this once API is ready
                 handleSpecificationClick={() => handleSelection(item)}
+                handleItemCheck={() => handleItemSelection(item)}
                 onDeleteItem={handleDeleteProduct} />}
               keyExtractor={item => item.baggedProduct.id.toString()}
             >
@@ -567,12 +685,12 @@ const StoreBag = ({ navigation }) => {
 
       <View style={styles.bottomBtns}>
         <SplitButtons
-          leftBtnName={bagStatus ? "PAY NOW" : "SUBMIT BAG"}
+          leftBtnName={bagStatus ? bagStatus == 'Delivered' ? "REQUEST RETURN" : "PAY NOW" : "SUBMIT BAG"}
           amount={totalPrice}
-          onLeftPress={() => bagStatus ? goToPayment() : setRenderAddress(true)}
+          onLeftPress={() => bagStatus ? bagStatus == 'Delivered' ? goToReturn() : goToPayment() : setRenderAddress(true)}
           onRightPress={() => setShowPriceDetails(!showPriceDetails)}
           showDetails={showPriceDetails}
-          isDisabled={!cartItems.length || disableBottomBtns}
+          isDisabled={!cartItems.length || disableBottomBtns || !isBuyEnabled}
         />
       </View>
 
@@ -585,9 +703,9 @@ const StoreBag = ({ navigation }) => {
           </View>
           <View style={{ ...styles.bottomBtns, width: '105%' }}>
             <SplitButtons
-              leftBtnName={bagStatus ? "PAY NOW" : "SUBMIT BAG"}
+              leftBtnName={bagStatus ? bagStatus == 'Delivered' ? "REQUEST RETURN" : "PAY NOW" : "SUBMIT BAG"}
               amount={totalPrice}
-              onLeftPress={() => bagStatus ? goToPayment() : setRenderAddress(true)}
+              onLeftPress={() => bagStatus ? bagStatus == 'Delivered' ? goToReturn() : goToPayment() : setRenderAddress(true)}
               onRightPress={() => setShowPriceDetails(!showPriceDetails)}
               showDetails={showPriceDetails} />
           </View>

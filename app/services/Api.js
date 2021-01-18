@@ -29,7 +29,7 @@ export const Api = {
             let returnObj = { 'status': responseStatus, 'responseJson': JSON.stringify(responseJson) }
             return returnObj;
         } catch (error) {
-            console.error(error);
+            console.log(error);
         }
     },
     registerUser: async function (data) {
@@ -63,7 +63,7 @@ export const Api = {
             };
             return returnObj;
         } catch (error) {
-            console.error(error);
+            console.log(error);
         }
     },
 }
@@ -93,7 +93,7 @@ export const GetUserProfile = async function () {
         let returnObj = { 'status': responseStatus, 'responseJson': JSON.stringify(responseJson) }
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }
 
@@ -123,7 +123,7 @@ export const PostUserLocation = async function (data) {
         let returnObj = { 'status': responseStatus, 'responseJson': JSON.stringify(responseJson) }
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }
 
@@ -152,7 +152,7 @@ export const PutiOSFirebaseRegToken = async function (fcmToken) {
         let returnObj = { 'status': responseStatus, 'responseJson': JSON.stringify(responseJson) }
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }
 
@@ -182,7 +182,7 @@ export const PutFirebaseRegToken = async function () {
         let returnObj = { 'status': responseStatus, 'responseJson': JSON.stringify(responseJson) }
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }
 
@@ -216,7 +216,7 @@ export const PostReviewRatings = async function (data) {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }
 
@@ -241,7 +241,7 @@ export const PostReplyForReview = async function (data) {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }
 
@@ -270,7 +270,7 @@ export const getReviewsByReviewId = async function (id) {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }
 

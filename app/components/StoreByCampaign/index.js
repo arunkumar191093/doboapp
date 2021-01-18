@@ -66,6 +66,7 @@ class StoreByCampaign extends Component {
   }
 
   render() {
+    let mediaURL = this.campaignvalue.media && this.campaignvalue.media.indexOf('http') > -1 ? this.campaignvalue.media : Constants.imageResBaseUrl + '/' + this.campaignvalue.media
     return (
       <View style={styles.container}>
         <NoNetwork />
@@ -76,7 +77,7 @@ class StoreByCampaign extends Component {
           }}>
           <ImageBackground
             style={styles.categoryImage}
-            source={{ uri: Constants.imageResBaseUrl + '/' + this.campaignvalue.media }}
+            source={{ uri: mediaURL }}
             resizeMode="stretch">
             <TouchableWithoutFeedback onPress={this.onCloseClickHandler}>
               <View style={styles.header}>
@@ -95,9 +96,10 @@ class StoreByCampaign extends Component {
             }}>
             Stores{' (' + this.state.storeListData.length + ')'}
           </Text>
-          <View style={{ position: 'absolute', right: 0, padding: 20 }}>
+          {/* Hidden as part of bug fixes */}
+          {/* <View style={{ position: 'absolute', right: 0, padding: 20 }}>
             <Icon name="sliders" type="feather" color="grey" />
-          </View>
+          </View> */}
         </View>
         <View
           style={{

@@ -3,7 +3,7 @@ import {
 } from 'react-native'
 const { width, height } = Dimensions.get('window')
 
-//export const baseURL = "https://retailer-dobo.app"
+// export const baseURL = "https://retailer-dobo.app"
 export const baseURL = "http://do-bo.in"
 export const imageResBaseUrl = baseURL + "/"
 export const BOTTOM_TAB_HEIGHT = 54/*(height / 12)*/
@@ -47,7 +47,7 @@ export const BORDER_WITHOUT_FOCUS = '#e6eef1';
 export const LIST_FONT_HEADER_SIZE = 14;
 export const LIST_FONT_SIZE_ADDRESS = 12;
 export const LIST_FONT_FAMILY = "Montserrat-Regular";
-export const HEADING_FONT_FAMILY = "Montserrat Medium";
+export const HEADING_FONT_FAMILY = "Montserrat-Medium";
 export const LIST_STAR_SIZE = 12;
 export const RADIUS_DISTANCE = 20;
 export const LOCATION_INTERVAL = 5 * 60 * 1000
@@ -56,7 +56,7 @@ export const DISTANCE_FILTER_MTR = 100
 
 
 export const BOLD_FONT_FAMILY = 'Montserrat-Bold'
-export const SEMI_BOLD_FONT_FAMILY = 'Montserrat SemiBold'
+export const SEMI_BOLD_FONT_FAMILY = 'Montserrat-SemiBold'
 export const DEFAULT_PROFILE_IMAGE = 'https://www.searchpng.com/wp-content/uploads/2019/11/Profile-Icon-1.jpg'
 export const VERIFICATION_CODE_TIMEOUT = 45000
 export const APP_CONST_PASSWORD = 'Welcom0ef!'
@@ -72,11 +72,25 @@ export const FIREBASE_SENDER_ID = '1044454681235'
 export const STATUS_ENUM = {
     Submitted: 'Pending Confirmation',
     Confirmed: 'Confirmed',
+    Delivered: 'Delivered',
+    Returned: 'Returned',
     PartiallyConfirmed: 'Partially Confirmed',
     NotAvailable: 'Not Available',
+    Rejected: 'Not Available',
     Open: ''
 }
 
-export const HELPLINE_NUMBER = 1234567890
+export const SHOW_FEATURE = true;
 
-export const SHOW_FEATURE = false;
+const { height: D_HEIGHT, width: D_WIDTH } = Dimensions.get('window');
+const X_WIDTH = 375;
+const X_HEIGHT = 812;
+const XSMAX_WIDTH = 414;
+const XSMAX_HEIGHT = 896;
+
+export const isIPhoneX = (() => (
+    (Platform.OS === 'ios'
+        && (
+            (D_HEIGHT === X_HEIGHT && D_WIDTH === X_WIDTH) || (D_HEIGHT === X_WIDTH && D_WIDTH === X_HEIGHT)))
+    || ((D_HEIGHT === XSMAX_HEIGHT && D_WIDTH === XSMAX_WIDTH) || (D_HEIGHT === XSMAX_WIDTH && D_WIDTH === XSMAX_HEIGHT))
+))();

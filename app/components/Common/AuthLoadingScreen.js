@@ -6,7 +6,7 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
-import { getUserToken } from '../../services/Helper';
+import { getUserToken,setUserToken } from '../../services/Helper';
 import NetInfo from "@react-native-community/netinfo";
 import * as Constants from '../../services/Constants'
 
@@ -16,7 +16,14 @@ class AuthLoadingScreen extends React.Component {
     isConnected: true
   }
   componentDidMount() {
+    //below code will set a dummy token to enable app to run in emulator
+    // this.setDummyToken(); //TODO: Remove setting dummy token for emulator
     this._bootstrapAsync();
+  }
+
+  setDummyToken = async () =>{
+    let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI2NzY0ZjdmNi05Yzk1LTRiN2ItYjA4NS03ZGYxOWJmZWFlNTQiLCJyb2xlIjoiQ3VzdG9tZXIiLCJuYmYiOjE2MDg4MzE1MzksImV4cCI6MTYxNjYwNzUzOSwiaWF0IjoxNjA4ODMxNTM5fQ.qrQysnMfvcfjBt853IAltdyGgn_U-RgJreDPiSE3FM4"
+    await setUserToken(token)
   }
 
   // Fetch the token from storage then navigate to our appropriate place

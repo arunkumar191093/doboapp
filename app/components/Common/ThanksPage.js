@@ -7,7 +7,7 @@ const ThanksPage = ({
 }) => {
 
   const { retailer, address, description } = storeDetails;
-  let imageURL = retailer != null ? (Constants.imageResBaseUrl + retailer.iconURL) : Constants.DEFAULT_STORE_ICON;
+  let imageURL = retailer != null ? retailer.iconURL && retailer.iconURL.indexOf('http') > -1 ? retailer.iconURL : (Constants.imageResBaseUrl + retailer.iconURL) : Constants.DEFAULT_STORE_ICON;
 
 
   return (

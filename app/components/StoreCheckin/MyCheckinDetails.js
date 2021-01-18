@@ -81,7 +81,7 @@ const MyCheckinDetails = ({ navigation }) => {
   const [showRatingResponse, setShowRatingResponse] = useState(false);
   const [loading, setLoading] = useState(false);
   const [reviewDetails, setReviewDetails] = useState({});
-  const [aggRating, setAggRating] = useState('5.0');
+  const [aggRating, setAggRating] = useState('');
 
 
   useEffect(() => {
@@ -89,7 +89,7 @@ const MyCheckinDetails = ({ navigation }) => {
     setAggRating(storeDetails.aggStoreRating)
     getCheckinDetailsOfStore(storeDetails.storeId);
     setAddress(((storeDetails.storeAddress && storeDetails.storeAddress.address1) || '') + ((storeDetails.storeAddress && storeDetails.storeAddress.address2) || ''))
-    setImageURL(storeDetails.iconURL !== null ? (Constants.imageResBaseUrl + storeDetails.iconURL) : Constants.DEFAULT_STORE_ICON)
+    setImageURL(storeDetails.iconURL !== null ? storeDetails.iconURL.indexOf('http') > -1 ? storeDetails.iconURL : (Constants.imageResBaseUrl + storeDetails.iconURL) : Constants.DEFAULT_STORE_ICON)
   }, [storeDetails])
 
   const getCheckinDetailsOfStore = async (storeId) => {
@@ -146,17 +146,22 @@ const MyCheckinDetails = ({ navigation }) => {
             </View>
           </View>
           <View style={{ flex: 0.3, flexDirection: 'row', marginTop: '3%', alignSelf: 'flex-start' }}>
-            <Text style={{
-              fontSize: Constants.LIST_FONT_SIZE_ADDRESS,
-              fontFamily: Constants.LIST_FONT_FAMILY,
-              color: Constants.DOBO_GREY_COLOR,
-            }}>
-              {aggRating}
-            </Text>
-            <IconComponent
-              style={{ marginHorizontal: '5%', }}
-              name={ImageConst["star-rating"]}
-              size={12} />
+            {
+              !!aggRating &&
+              <>
+                <Text style={{
+                  fontSize: Constants.LIST_FONT_SIZE_ADDRESS,
+                  fontFamily: Constants.LIST_FONT_FAMILY,
+                  color: Constants.DOBO_GREY_COLOR,
+                }}>
+                  {aggRating}
+                </Text>
+                <IconComponent
+                  style={{ marginHorizontal: '5%', }}
+                  name={ImageConst["star-rating"]}
+                  size={12} />
+              </>
+            }
 
           </View>
         </View>

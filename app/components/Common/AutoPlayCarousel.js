@@ -22,13 +22,16 @@ class AutoPlayCarousel extends React.Component {
                     position: 'absolute',
                     bottom: 0,
                     padding: 0,
-                    //marginHorizontal: 0,
+                    // marginHorizontal: 16,
                     paddingVertical: 0,
                     //justifyContent: 'space-evenly',
                     paddingHorizontal: 0
                 }}
+                dotContainerStyle={{
+                    marginHorizontal: 2
+                }}
                 dotStyle={{
-                    width: Constants.SCREEN_WIDTH / this.props.children.length - 15,
+                    width: Constants.SCREEN_WIDTH / this.props.children.length,
                     height: 2,
                     //borderRadius: 5,
                     marginHorizontal: 0,
@@ -37,7 +40,7 @@ class AutoPlayCarousel extends React.Component {
                 }}
                 inactiveDotStyle={{
                     // Define styles for inactive dots here
-                    width: Constants.SCREEN_WIDTH / this.props.children.length - 15,
+                    width: Constants.SCREEN_WIDTH / this.props.children.length,
                     backgroundColor: Constants.LIGHT_GREY_COLOR,
                     //padding: 0
                 }}

@@ -54,11 +54,14 @@ class MyCheckins extends Component {
     calculateAggRating(checkinData) {
         return checkinData.map((item) => {
             const { storeReviewAnalytics } = item;
-            let total = storeReviewAnalytics.productQualityAverage + storeReviewAnalytics.purchaseExpAverage + storeReviewAnalytics.storeStaffSupportAverage;
-            let aggStoreRating = (total / 3).toFixed(1);
+            let total, aggStoreRating;
+            if (storeReviewAnalytics) {
+                total = storeReviewAnalytics.productQualityAverage + storeReviewAnalytics.purchaseExpAverage + storeReviewAnalytics.storeStaffSupportAverage;
+                aggStoreRating = (total / 3).toFixed(1);
+            }
             return {
                 ...item,
-                aggStoreRating: aggStoreRating.toString()
+                aggStoreRating: aggStoreRating ? aggStoreRating.toString() : ''
             }
         })
     }

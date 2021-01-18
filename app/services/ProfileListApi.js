@@ -29,7 +29,7 @@ export const GetReferralDetails = async function () {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 };
 
@@ -60,7 +60,7 @@ export const coupons = async function () {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 };
 
@@ -91,7 +91,7 @@ export const GetCouponsByRetailer = async function (id) {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 };
 
@@ -122,7 +122,7 @@ export const storecheckins = async function () {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 };
 
@@ -147,7 +147,7 @@ export const UpdateUserProfile = async function (data) {
         console.log('responseStatus', responseStatus);
         return response;
     } catch (error) {
-        // console.error(error);
+        // console.log(error);
     }
 }
 
@@ -176,6 +176,6 @@ export const getCheckinsByStoreId = async (storeId) => {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }

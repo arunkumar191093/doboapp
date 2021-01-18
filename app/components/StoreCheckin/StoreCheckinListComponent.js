@@ -19,7 +19,7 @@ class StoreCheckinListComponent extends Component {
         this.onItemClickHandler = this.onItemClickHandler.bind(this);
     }
     state = {
-        value: '5.0'
+        value: ''
     }
 
     onItemClickHandler = (item) => {
@@ -39,11 +39,12 @@ class StoreCheckinListComponent extends Component {
 
     renderComponent = ({ item }) => {
         let address = (item.store.address.address1 || '') + (item.store.address.address2 || '');
+        let mediaURL = item.store && item.store.retailer && item.store.retailer.iconURL && item.store.retailer.iconURL.indexOf('http') > -1 ? item.store.retailer.iconURL : Constants.imageResBaseUrl + item.store.retailer.iconURL
         return (
             <TouchableWithoutFeedback onPress={() => this.onItemClickHandler(item)}>
                 <View style={styles.listRow}>
                     <Image style={styles.listImage}
-                        source={{ uri: Constants.imageResBaseUrl + item.store.retailer.iconURL || Constants.DEFAULT_STORE_ICON }} />
+                        source={{ uri: mediaURL || Constants.DEFAULT_STORE_ICON }} />
                     <View style={styles.rowText}>
                         <Text
                             style={styles.listNameText}>

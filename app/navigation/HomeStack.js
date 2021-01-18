@@ -22,6 +22,8 @@ import StorePageDetails from "../components/StorePage/StorePageDetails";
 import StoreBag from "../components/StorePage/StoreBag";
 import AllBags from "../components/StorePage/AllBags";
 import PayNowSummary from "../components/StorePage/PayNowSummary";
+import RequestReturn from "../components/StorePage/RequestReturn";
+import * as Constants from '../services/Constants';
 
 const HomeStack = createStackNavigator({
     Home: {
@@ -29,9 +31,21 @@ const HomeStack = createStackNavigator({
     },
     LocationEditView: {
         screen: LocationEditView,
+        navigationOptions: {
+            title: 'Change Location',
+            headerTitleStyle: {
+                fontFamily: Constants.LIST_FONT_FAMILY
+            }
+        }
     },
     LocationSearchPage: {
         screen: LocationSearchPage,
+        navigationOptions: {
+            title: 'Change Location',
+            headerTitleStyle: {
+                fontFamily: Constants.LIST_FONT_FAMILY
+            }
+        }
     },
     AddLocationView: {
         screen: AddLocationView
@@ -111,6 +125,12 @@ const HomeStack = createStackNavigator({
             header: null,
         },
     },
+    RequestReturn: {
+        screen: RequestReturn,
+        navigationOptions: {
+            header: null,
+        },
+    },
     RetailerVouchers: RetailerVouchers,
     VoucherDetails: VoucherDetails,
     BuyVoucher: BuyVoucher,
@@ -126,7 +146,7 @@ HomeStack.navigationOptions = ({ navigation }) => {
     if (navigation.state.routes.length > 1) {
         navigation.state.routes.map(route => {
             if (route.routeName === "StorePageDetails" || route.routeName === "StoreBag" ||
-                route.routeName === "AllBags" || route.routeName === "PayNowSummary") {
+                route.routeName === "AllBags" || route.routeName === "PayNowSummary" || route.routeName === "RequestReturn") {
                 tabBarVisible = false;
             } else {
                 tabBarVisible = true;

@@ -107,6 +107,7 @@ class VoucherDetails extends Component {
             AmountToPay,
             DiscountUpdate
         }
+        let itemMediaURL = this.voucherDetails.retailer && this.voucherDetails.retailer.voucherBanner && this.voucherDetails.retailer.voucherBanner.indexOf('http') > -1 ? this.voucherDetails.retailer.voucherBanner : Constants.imageResBaseUrl + this.voucherDetails.retailer.voucherBanner
         return (
             <View style={{ flex: 1 }}>
                 <Loader
@@ -114,7 +115,7 @@ class VoucherDetails extends Component {
                 />
                 <Image
                     style={{ width: '100%', height: '40%' }}
-                    source={{ uri: Constants.imageResBaseUrl + this.voucherDetails.retailer.voucherBanner }}
+                    source={{ uri: itemMediaURL }}
                     resizeMode='stretch'
                 />
                 <ScrollView>

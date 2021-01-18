@@ -10,7 +10,8 @@ export const filterOptions = [
         id: '2',
         value: 'Categories',
         type: 'Multiple',
-        details: []
+        details: [],
+        isTree: true
     },
     {
         id: '3',
@@ -32,4 +33,21 @@ export const filterOptions = [
     //     details: [],
     //     selectedIndex: null
     // }
+]
+
+export const productFilterOptions = [
+    {
+        id: '1',
+        value: 'Sort by',
+        type: 'Single',
+        details: [],
+        selectedIndex: 0
+    },
+    {
+        id: '2',
+        value: 'Categories',
+        type: 'Multiple',
+        details: [],
+        isTree: true
+    }
 ]

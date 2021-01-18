@@ -113,7 +113,7 @@ class LocationSearchPage extends Component {
                             flex: 1,
                             flexDirection: 'column-reverse'
                         }}
-                        titleStyle={{ fontSize: 16 }}
+                        titleStyle={{ fontSize: 16, fontFamily: Constants.LIST_FONT_FAMILY }}
                         onPress={() => this.onConfirmLocation()}
                     />
                 </View>

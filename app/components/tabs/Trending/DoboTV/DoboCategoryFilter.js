@@ -126,7 +126,7 @@ class DoboCategoryFilter extends Component {
             let response = await createShareUserAction(EntityType.DoboTv, item.id)
             console.log('Share UserAction Response', response)
         } catch (error) {
-            console.error('Could not share', error)
+            console.log('Could not share', error)
         }
     }
 
@@ -155,13 +155,14 @@ class DoboCategoryFilter extends Component {
 
 
     render() {
+        let mediaURL = this.value && this.value.icon && this.value.icon.indexOf('http') > -1 ? this.value.icon : Constants.imageResBaseUrl + this.value.icon;
         return (
             <View style={styles.container}>
                 <Loader
                     loading={this.state.loading}
                 />
                 <ImageBackground style={{ height: Constants.BANNER_HEIGHT }}
-                    source={{ uri: Constants.imageResBaseUrl + this.value.icon }}
+                    source={{ uri: mediaURL }}
                     resizeMode='stretch'>
                     <TouchableWithoutFeedback onPress={this.onCloseClickHandler}>
                         <View style={styles.header}>

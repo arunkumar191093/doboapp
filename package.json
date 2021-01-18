@@ -7,7 +7,13 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "bundle-android-apk": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res",
+    "bundle-release-android-apk": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/build/intermediates/res/merged/release/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*",
+    "curl-android": "curl 'http://localhost:8081/index.bundle?platform=android' -o 'android/app/src/main/assets/index.android.bundle'",
+    "create-apk": "cd android && ./gradlew clean assembleDebug && cd ..",
+    "create-release-apk": "cd android && ./gradlew assembleRelease && cd ..",
+    "create-release-aab": "cd android && ./gradlew bundleRelease && cd .."
   },
   "dependencies": {
     "@crowdlinker/react-native-pager": "^0.2.1",
@@ -26,6 +32,7 @@
     "react-native-barcode-builder": "^1.0.5",
     "react-native-camera": "^3.18.0",
     "react-native-datepicker": "^1.7.2",
+    "react-native-device-info": "^7.1.0",
     "react-native-elements": "^1.2.7",
     "react-native-fbsdk": "^1.1.1",
     "react-native-flexi-radio-button": "^0.2.2",
@@ -53,6 +60,8 @@
     "react-navigation-stack": "^1.10.3",
     "react-navigation-tabs": "^2.6.0",
     "react-redux": "^7.1.3",
+    "reactotron-apisauce": "^3.0.0",
+    "reactotron-react-native": "^5.0.0",
     "recyclerlistview": "^2.0.12",
     "recyclerlistview-gridlayoutprovider": "^1.0.1",
     "redux": "^4.0.5",

@@ -9,6 +9,7 @@ import * as Constants from '../services/Constants'
 import IconWithBadge from '../components/tabs/MyList/IconWithBadge';
 import { ImageConst } from '../services/ImageConstants';
 import IconComponent from '../components/Common/IconComponent';
+import { StackActions, NavigationActions } from 'react-navigation';
 
 const TabBarComponent = props => <BottomTabBar {...props} />;
 
@@ -73,5 +74,20 @@ export const MainTabs = createBottomTabNavigator({
         tabBarComponent: props => (
             <TabBarComponent {...props} />
         ),
+        //commenting below code because it was breaking in some cases, this code is for resetting stack to first value
+        // defaultNavigationOptions:{
+        //     tabBarOnPress: ({ navigation, defaultHandler }) => {
+        //       defaultHandler(); // Switch tab
+        //       if (navigation.state.index > 0) { // In case the stack is not positioned at the first screen
+        //         const resetAction = StackActions.reset({ // Reset the stack
+        //           index: 0,
+        //           actions: [
+        //             NavigationActions.navigate({ routeName: navigation.state.routes[0].routeName })
+        //           ],
+        //         });
+        //         navigation.dispatch(resetAction);
+        //       }
+        //     },
+        // }
     },
 );

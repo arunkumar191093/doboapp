@@ -17,7 +17,7 @@ import * as Constants from '../../services/Constants'
 import { Icon, Divider, Button } from 'react-native-elements';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import GridComponent from './GridComponent'
-import { GetStoreBanners, GetStorePageDetails, Storecheckins } from '../../services/StoreApi';
+import { GetStoreBanners, GetStorePageDetails, Storecheckins, GetStoresProductsByFilter } from '../../services/StoreApi';
 import { likeContent, GetDistance, createShareUserAction, createClickUserAction, shareProduct, checkForCheckinValidity, removeStoreFromStorage, callNumber } from '../../services/Helper';
 import StoreBannerImageCard from './StoreBannerImageCard';
 import StoreBannerVideoCard from './StoreBannerVideoCard';
@@ -41,6 +41,9 @@ import NavHeader from '../Common/NavHeader';
 import { getAllProductByStoreId } from '../../services/StoreBag';
 import { NavigationEvents } from 'react-navigation';
 import AsyncStorage from '@react-native-community/async-storage';
+import Filter from '../Filter';
+import { productFilterOptions } from '../Filter/FilterValue';
+import { getCategoriesForFilterForStore } from '../../services/Categories';
 
 const DEFAULT_TIMER = 29 // total minutes - 1
 
@@ -56,7 +59,7 @@ class StorePage extends Component {
         isStoreAdsAvailable: false,
         exclusiveDealsCount: 0,
         totalDeals: 0,
-        value: '5.0',
+        value: '',
         carouselLoader: false,
         storeBannerLoaded: false,
         loading: false,
@@ -70,10 +73,13 @@ class StorePage extends Component {
         cartCount: 0,
         bagId: 0,
         isStoreCheckin: false,
-        checkinDetails: {}
+        checkinDetails: {},
+        isFilterModalVisible: false,
+        categories: []
     };
     constructor(props) {
         super(props);
+        this.filterOptions = productFilterOptions;
         this.onFabClickHandler = this.onFabClickHandler.bind(this);
         this.onFabArrowClickHandler = this.onFabArrowClickHandler.bind(this);
         this.onCloseClickHandler = this.onCloseClickHandler.bind(this);
@@ -93,8 +99,8 @@ class StorePage extends Component {
         this.setState({ isStoreCheckin: this.isStoreCheckin });
         this.scrollY = new Animated.Value(0);
         this.headerHeight = this.scrollY.interpolate({
-            inputRange: [0, 255],
-            outputRange: [270, 0],
+            inputRange: [0, 270],
+            outputRange: [0, -(Constants.BANNER_HEIGHT + 14)],
             extrapolate: 'clamp',
         });
         this.counter = null;
@@ -103,12 +109,43 @@ class StorePage extends Component {
     }
 
     componentDidMount() {
+        console.log('component mounted in store page')
         //this.getStoreAds()
         // this.isStoreCheckin ? this.startTimer() : null;
         this.checkForCheckout();
         this.getStoreBanners()
-        this.getStorePageDetails()
+        // this.getStorePageDetails()
+        this.getStoreProductsByFliter();
         this.getBagItems(this.storeDetails.id)
+        let rating = this.calculateAggRating();
+        this.setState({ value: rating })
+        this.getFilterCategoriesForStore();
+
+    }
+
+    getFilterCategoriesForStore = async () => {
+        let response = await getCategoriesForFilterForStore(this.storeDetails.id)
+        if (response.status == 200) {
+            let jsonCategories = response.responseJson
+            console.log('getFilterCategoriesForStore', jsonCategories)
+            jsonCategories = jsonCategories.map(v => ({ ...v, checked: false }))
+            this.setState({
+                categories: jsonCategories
+            });
+        }
+    }
+
+    calculateAggRating() {
+        const { storeReviewAnalytics } = this.storeDetails;
+        if (storeReviewAnalytics) {
+            let total = storeReviewAnalytics.productQualityAverage + storeReviewAnalytics.purchaseExpAverage + storeReviewAnalytics.storeStaffSupportAverage;
+            let aggStoreRating = (total / 3).toFixed(1);
+            return aggStoreRating.toString();
+        }
+        else {
+            return ''
+        }
+
     }
 
 
@@ -119,14 +156,16 @@ class StorePage extends Component {
             console.log('StorePage::Like User Action Has Changed')
             this.props.actions.changeLikeState(false)
             //await this.getStoreAds()
-            await this.getStorePageDetails()
+            // await this.getStorePageDetails()
+            await this.getStoreProductsByFliter()
         }
         if (this.props.isLoadingState == true) {
             console.log('IsLoading Action Has Changed')
             this.props.actions.changeLoadingState(false)
             await this.getStoreBanners()
             //await this.getStoreAds();
-            await this.getStorePageDetails()
+            // await this.getStorePageDetails()
+            await this.getStoreProductsByFliter()
             await this.onFabArrowClickHandler();
 
         }
@@ -151,7 +190,7 @@ class StorePage extends Component {
         let response = await GetUserList()
         let storeAds = []
         let products = []
-        if (response.status == 200) {
+        if (response && response.status == 200) {
             let userList = response.responseJson
             let jsonUserList = JSON.parse(userList)
             storeAds = jsonUserList.storeAds;
@@ -212,9 +251,10 @@ class StorePage extends Component {
         const response = await getAllProductByStoreId(storeId);
         if (response.status == 200) {
             let cartItems = response.responseJson;
+            console.log('cartItems', cartItems)
             this.setState({
                 cartCount: cartItems.itemCount,
-                bagId: cartItems.baggedProducts[0].baggedProduct.bagId
+                bagId: (cartItems.baggedProducts[0].baggedProduct && cartItems.baggedProducts[0].baggedProduct.bagId) || 0
             })
         }
     }
@@ -291,7 +331,9 @@ class StorePage extends Component {
 
             if (item.mediaType == 0) {
                 let replaceUrl = item.media.replace(/\\/gi, '/')
-                sharedData = Constants.baseURL + replaceUrl
+                let firstUrl = replaceUrl.split(',')[0];
+                let finalUrl = firstUrl && firstUrl.indexOf('http') > -1 ? firstUrl : Constants.baseURL + firstUrl;
+                sharedData = finalUrl
             }
             else {
                 let replaceUrl = item.media
@@ -304,7 +346,7 @@ class StorePage extends Component {
                 let response = await createShareUserAction(entityType, item.id)
                 console.log('Share UserAction Response', response)
             } catch (error) {
-                console.error('Could not share', error)
+                console.log('Could not share', error)
             }
         }
     }
@@ -321,6 +363,8 @@ class StorePage extends Component {
             }
             else
                 await likeContent(EntityType.FeatureProduct, item)
+            actions.changeLikeState(true)
+            actions.changeLikeShowBadge(true)
         }
         else {
             if (item.useraction != undefined) {
@@ -331,7 +375,8 @@ class StorePage extends Component {
         // actions.changeLikeState(true)
         // actions.changeLikeShowBadge(true)
         //await this.getStoreAds()
-        await this.getStorePageDetails()
+        // await this.getStorePageDetails()
+        await this.getStoreProductsByFliter()
         this.stopLoading()
     }
 
@@ -569,6 +614,12 @@ class StorePage extends Component {
                     onWishlistClick={(item) => this.onWishlistClickHandler(item)}
                     onShareClick={(item) => this.onShareClickHandler(item)}
                     onListScroll={(data) => this.onListScrollHandler(data)}
+                // onListScroll={Animated.event(
+                //     [{
+                //         nativeEvent: { contentOffset: { y: this.scrollY } },
+                //     }],
+                //     { listener: () => this.onListScrollHandler() }
+                // )}
                 />
             )
         }
@@ -581,7 +632,7 @@ class StorePage extends Component {
                     fontSize: Constants.LIST_FONT_HEADER_SIZE,
                     color: Constants.DOBO_GREY_COLOR
                 }}>
-                    No Deals Found
+                    No Results Found
                 </Text>
             )
         }
@@ -613,23 +664,31 @@ class StorePage extends Component {
         });
     }
 
+
     onListScrollHandler(data) {
-        // setTimeout(() => {
-        if (data > 30 && !this.headerScrolled) {
+        if (data > 269 && !this.headerScrolled) {
             this.headerScrolled = true;
+            this.scrollY.setValue(270)
             this.setState({
                 showHeaderName: true
             })
-            this.scrollY.setValue(218);
         }
-        if (data <= 5 && this.headerScrolled) {
+        if (data == 0) {
             this.headerScrolled = false;
+            this.scrollY.setValue(0)
             this.setState({
                 showHeaderName: false
             })
-            this.scrollY.setValue(0);
         }
-        // }, 5)
+        // if (this.scrollY._value > 100 && !this.state.showHeaderName) {
+        //     this.setState({
+        //         showHeaderName: true
+        //     })
+        // } else if (this.scrollY._value < 50) {
+        //     this.setState({
+        //         showHeaderName: false
+        //     })
+        // }
     }
 
     handleRatingSubmit() {
@@ -645,46 +704,46 @@ class StorePage extends Component {
         //     this.props.navigation.state.params.onClose()
         // }
     }
+    //Don't know what is the use of this function, thus commenting it
+    // openModal = () => {
+    //     if (!this.state.isModalVisible) {
+    //         return (
+    //             <View>
+    //                 <Modal
+    //                     animationType="slide"
+    //                     //transparent={true}
+    //                     visible={this.state.isModalVisible}
+    //                     onRequestClose={() => {
+    //                         this.setState({
+    //                             isModalVisible: false
+    //                         })
+    //                     }}>
+    //                     <View style={{ marginTop: 22 }}>
+    //                         <View>
+    //                             <TouchableWithoutFeedback>
+    //                                 <TouchableOpacity style={{ left: 10, position: 'absolute' }}
+    //                                     onPress={() => {
+    //                                         this.setState({
+    //                                             isModalVisible: false
+    //                                         })
+    //                                     }}>
+    //                                     <Icon name="arrow-back" color="grey"></Icon>
+    //                                 </TouchableOpacity>
+    //                             </TouchableWithoutFeedback>
 
-    openModal = () => {
-        if (!this.state.isModalVisible) {
-            return (
-                <View>
-                    <Modal
-                        animationType="slide"
-                        //transparent={true}
-                        visible={this.state.isModalVisible}
-                        onRequestClose={() => {
-                            this.setState({
-                                isModalVisible: false
-                            })
-                        }}>
-                        <View style={{ marginTop: 22 }}>
-                            <View>
-                                <TouchableWithoutFeedback>
-                                    <TouchableOpacity style={{ left: 10, position: 'absolute' }}
-                                        onPress={() => {
-                                            this.setState({
-                                                isModalVisible: false
-                                            })
-                                        }}>
-                                        <Icon name="arrow-back" color="grey"></Icon>
-                                    </TouchableOpacity>
-                                </TouchableWithoutFeedback>
+    //                             <View style={{ alignSelf: 'center', marginTop: Constants.NEAR_ME_BUTTON_POSITION }}>
+    //                                 <Image style={styles.modalImage}
+    //                                     source={{ uri: this.imageUrl }}
+    //                                     resizeMode='contain' />
+    //                             </View>
 
-                                <View style={{ alignSelf: 'center', marginTop: Constants.NEAR_ME_BUTTON_POSITION }}>
-                                    <Image style={styles.modalImage}
-                                        source={{ uri: this.imageUrl }}
-                                        resizeMode='contain' />
-                                </View>
-
-                            </View>
-                        </View>
-                    </Modal>
-                </View>
-            )
-        }
-    }
+    //                         </View>
+    //                     </View>
+    //                 </Modal>
+    //             </View>
+    //         )
+    //     }
+    // }
 
     // renderExclusiveDealsCount = () => {
     //   if (this.isStoreCheckin == false && this.state.exclusiveDealsCount > 0) {
@@ -696,11 +755,12 @@ class StorePage extends Component {
     // }
 
     renderCarouselItem = ({ item, index }) => {
+        let mediaURL = item.imageUrl && item.imageUrl.indexOf('http') > -1 ? item.imageUrl : Constants.imageResBaseUrl + item.imageUrl
         if (item.bannerType === 0) {
             return (
                 <StoreBannerImageCard
                     key={index}
-                    mediaUrl={Constants.imageResBaseUrl + item.imageUrl}
+                    mediaUrl={mediaURL}
                 />
             )
         }
@@ -738,13 +798,133 @@ class StorePage extends Component {
         console.log('store page focused');
         this.startLoading();
         this.checkForCheckout();
-        await this.getStorePageDetails()
+        // await this.getStorePageDetails()
+        await this.getStoreProductsByFliter()
         await this.getBagItems(this.storeDetails.id)
         this.stopLoading();
     }
 
     handleCall = () => {
-        callNumber(this.storeDetails.phone || this.storeDetails.retailer.alternateContact)
+        callNumber(this.storeDetails.phone || this.storeDetails.retailer.alternateContact || this.storeDetails.retailer.phone)
+    }
+
+    onApplyFilter = async (data) => {
+        console.log('Filter Options Applied>', data)
+        this.filterOptions = data
+        await this.getStoreProductsByFliter(data)
+
+    }
+
+    onClearFilter = async (data) => {
+        this.filterOptions = data
+        await this.getStoreProductsByFliter()
+    }
+
+    getStoreProductsByFliter = async (filterData) => {
+        let body = {
+            "sortBy": "whatsnew",
+            "categories": []
+        }
+        if (filterData) {
+            filterData.forEach(element => {
+                if (element.value === 'Categories') {
+                    element.details.forEach(element => {
+                        if (element.checked === true) {
+                            body.categories.push({ id: element.id })
+                        }
+                        if (element.children && element.children.length) {
+                            element.children.forEach((child) => {
+                                if (child.checked) {
+                                    body.categories.push({ id: child.id })
+                                }
+                                if (child.children && child.children.length) {
+                                    child.children.forEach((subChild) => {
+                                        if (subChild.checked) {
+                                            body.categories.push({ id: subChild.id })
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    });
+
+                }
+                else if (element.value === 'Sort by') {
+                    body.sortBy = element.details[element.selectedIndex].mapping ? element.details[element.selectedIndex].mapping : 'whatsnew'
+                }
+            });
+        }
+
+        const [userListStoreAds, userListProducts] = await this.getUserListStoreDetails() //fetching liked products and ads
+        let response = await GetStoresProductsByFilter(body, this.storeDetails.id, this.isStoreCheckin)
+        console.log('GetStoresProductsByFilter', response)
+        if (response.status == 200) {
+            let jsonStorePageDetails = response.responseJson
+            // console.log('Ads and Products for Store>>>', JSON.parse(storePageDetails))
+            // let jsonStorePageDetails = JSON.parse(storePageDetails)
+            let totalDeals = jsonStorePageDetails.length
+            console.log('Total Deals Count>>>', totalDeals)
+            console.log('jsonStorePageDetails', jsonStorePageDetails)
+
+            jsonStorePageDetails.forEach(function (image, index) {
+                if (image.type == StoreEntityType.Offer) {
+                    let foundStoreAd = userListStoreAds.find(value => value.storeAd.id === image.id)
+                    if (foundStoreAd) {
+
+                        console.log('StoreAds included in userlist >>>', image)
+                        image['wishList'] = true
+                        image['useraction'] = foundStoreAd.useraction
+                    }
+                    else {
+                        image['wishList'] = false
+                    }
+                }
+                else {
+                    let foundStoreProduct = userListProducts.find(value => value.product.id === image.id)
+                    if (foundStoreProduct) {
+
+                        console.log('StoreProduct included in userlist >>>', image)
+                        image['wishList'] = true
+                        image['useraction'] = foundStoreProduct.useraction
+                    }
+                    else {
+                        image['wishList'] = false
+                    }
+                }
+                this[index] = image;
+
+            }, jsonStorePageDetails)
+
+            this.setState({ storeAdsData: jsonStorePageDetails, isStoreAdsAvailable: true, totalDeals: totalDeals })
+
+        }
+        else {
+            // this.setState({ storeList: [] })
+        }
+
+    }
+
+    openModal = () => {
+        if (this.state.isFilterModalVisible) {
+            console.log('Filter Options State', this.filterOptions)
+            return (
+
+                <Filter
+                    onModalClose={() => this.setState({ isFilterModalVisible: false })}
+                    onApplyFilter={this.onApplyFilter}
+                    onClearFilter={this.onClearFilter}
+                    filterOptions={this.filterOptions}
+                    isFilterInsideStore={true}
+                    categoriesForStore={this.state.categories}
+                    showFilter={this.state.isFilterModalVisible}
+                    storeData={this.storeDetails}
+
+                />
+
+            );
+        } else {
+            return (null);
+        }
     }
 
     render() {
@@ -782,6 +962,8 @@ class StorePage extends Component {
         const { coordinates } = this.props
         let distance = GetDistance(coordinates.latitude, coordinates.longitude, this.storeDetails.location.coordinates[1], this.storeDetails.location.coordinates[0]),
             distanceMsg = distance > 1 ? `${Math.round(distance)} km` : distance <= 1 ? `${Math.round(distance * 1000)} m` : '';
+        let storeMediaURL = this.storeDetails.retailer && this.storeDetails.retailer.iconURL && this.storeDetails.retailer.iconURL.indexOf('http') > -1 ? this.storeDetails.retailer.iconURL : Constants.imageResBaseUrl + this.storeDetails.retailer.iconURL
+        console.log('this.storeDetails', this.storeDetails)
         return (
             <View style={styles.container}>
                 <NoNetwork />
@@ -791,8 +973,17 @@ class StorePage extends Component {
                 <NavigationEvents
                     onDidFocus={this.onPageFocus}
                 />
+                <NavHeader backPressHandler={this.onCloseClickHandler} isTransparent={!this.state.showHeaderName} heading={this.state.showHeaderName ? this.storeDetails.description.trim() : ""}>
+                    <View style={styles.rightContainer}>
+                        <MaterialCommunityIcons name='phone' size={20} color="#31546e" style={styles.callIcon} onPress={this.handleCall} />
+                        {
+                            // Constants.SHOW_FEATURE &&
+                            <CartBag count={this.state.cartCount} onBadgePress={this.handleCartPress} />
+                        }
+                    </View>
+                </NavHeader>
                 <Animated.View style={
-                    { height: this.headerHeight }
+                    { transform: [{ translateY: this.headerHeight }] }
                 }>
                     <View>
                         <AutoPlayCarousel
@@ -805,20 +996,10 @@ class StorePage extends Component {
                         />
                     </View>
 
-                    <NavHeader backPressHandler={this.onCloseClickHandler} isTransparent={!this.state.showHeaderName} heading={this.state.showHeaderName ? this.storeDetails.description.trim() : ""}>
-                        <View style={styles.rightContainer}>
-                            <MaterialCommunityIcons name='phone' size={20} color="#31546e" style={styles.callIcon} onPress={this.handleCall} />
-                            {
-                                Constants.SHOW_FEATURE &&
-                                <CartBag count={this.state.cartCount} onBadgePress={this.handleCartPress} />
-                            }
-                        </View>
-                    </NavHeader>
-
                     <View>
                         <View style={styles.listRow}>
                             <Image style={styles.listImage}
-                                source={{ uri: Constants.imageResBaseUrl + this.storeDetails.retailer.iconURL || Constants.DEFAULT_STORE_ICON }} />
+                                source={{ uri: storeMediaURL || Constants.DEFAULT_STORE_ICON }} />
                             <View style={styles.rowText}>
                                 <Text
                                     style={styles.listNameText}>
@@ -845,17 +1026,20 @@ class StorePage extends Component {
                             />
                         </View> */}
                             <View style={{ flex: 1, alignItems: 'flex-end' }}>
-                                <View style={{ flexDirection: 'row' }}>
-                                    <Text style={styles.storeStarRating}>{this.state.value || '5.0'}</Text>
-                                    <Icon
-                                        name='star'
-                                        color="#ffc106"
-                                        size={14}
-                                        style={{
-                                            fontFamily: Constants.LIST_FONT_FAMILY
-                                        }}
-                                    />
-                                </View>
+                                {
+                                    !!this.state.value &&
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <Text style={styles.storeStarRating}>{this.state.value || ''}</Text>
+                                        <Icon
+                                            name='star'
+                                            color="#ffc106"
+                                            size={14}
+                                            style={{
+                                                fontFamily: Constants.LIST_FONT_FAMILY
+                                            }}
+                                        />
+                                    </View>
+                                }
                                 {/* <View style={{ flex: 1, marginTop: '10%' }}>
                                 <Button
                                     title={distanceMsg}
@@ -904,36 +1088,36 @@ class StorePage extends Component {
                         </View> */}
                         </View>
                     </View>
-                </Animated.View>
 
 
-                <View style={{ flexDirection: 'row', justifyContent: 'space-around', backgroundColor: '#e0eaed', paddingHorizontal: 16, paddingTop: 8 }}>
-                    {/* <View style={{ flexDirection: "column" }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-around', backgroundColor: '#e0eaed', paddingHorizontal: 16, paddingTop: 8 }}>
+                        {/* <View style={{ flexDirection: "column" }}>
                         <Text style={{ fontSize: 18, justifyContent: 'center', margin: '5%', color: '#295C73', fontFamily: Constants.BOLD_FONT_FAMILY }}>Explore the store..</Text> */}
-                    {/* {
+                        {/* {
               this.renderExclusiveDealsCount()
             } */}
-                    {/* </View> */}
-                    <View style={styles.filterView}>
-                        <Icon
-                            name="sort"
-                            color="#4d6b82"
-                            size={20} />
-                        <Text style={styles.filterText}>Sort</Text>
+                        {/* </View> */}
+                        <TouchableOpacity style={styles.filterView} onPress={() => this.setState({ isFilterModalVisible: true })}>
+                            <Icon
+                                name="sort"
+                                color="#4d6b82"
+                                size={20} />
+                            <Text style={styles.filterText}>Sort</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.filterView} onPress={() => this.setState({ isFilterModalVisible: true })}>
+                            <Icon
+                                name="sliders"
+                                type="feather"
+                                color="#4d6b82"
+                                size={20} />
+                            <Text style={styles.filterText}>Filter</Text>
+                        </TouchableOpacity>
                     </View>
-                    <View style={styles.filterView}>
-                        <Icon
-                            name="sliders"
-                            type="feather"
-                            color="#4d6b82"
-                            size={20} />
-                        <Text style={styles.filterText}>Filter</Text>
-                    </View>
-                </View>
 
-                <View style={{ flex: 1, paddingHorizontal: '2%' }}>
-                    {this.renderStoreAdsView()}
-                </View>
+                    <View style={{ paddingHorizontal: '2%' }}>
+                        {this.renderStoreAdsView()}
+                    </View>
+                </Animated.View>
 
                 {!this.state.isStoreCheckin ? this.showcolapsableView() : this.showCheckout()}
                 {this.openModal()}
@@ -1073,7 +1257,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row'
     },
     callIcon: {
-        // paddingHorizontal: 12
+        paddingHorizontal: 12
     }
 });
 

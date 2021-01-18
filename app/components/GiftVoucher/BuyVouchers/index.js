@@ -105,10 +105,11 @@ class BuyVouchers extends Component {
     }
 
     renderCarouselItem = ({ item, index }) => {
+        let itemMediaURL = item.retailers.voucherBanner && item.retailers.voucherBanner.indexOf('http') > -1 ? item.retailers.voucherBanner : Constants.imageResBaseUrl + item.retailers.voucherBanner
         return (
             <ByVoucherImageCard
                 key={index}
-                mediaUrl={Constants.imageResBaseUrl + item.retailers.voucherBanner}
+                mediaUrl={itemMediaURL}
                 data={item}
             // onWishlistClickHandler={(data) => this.onWishlistClickHandler(data)}
             // onShareClickHandler={(data) => this.onShareClickHandler(data)}

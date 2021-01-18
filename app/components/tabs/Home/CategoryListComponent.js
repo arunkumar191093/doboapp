@@ -21,12 +21,13 @@ class CategoryListComponent extends Component {
     }
 
     renderComponent = ({ item }) => {
+        let mediaURL = item.image && item.image.indexOf('http') > -1 ? item.image : Constants.imageResBaseUrl + item.image
         return (
             <TouchableWithoutFeedback onPress={() => this.onItemClickHandler(item)}>
                 <View style={styles.category}>
                     <View style={styles.categoryView}>
                         <Image
-                            source={{ uri: Constants.imageResBaseUrl + item.image }}
+                            source={{ uri: mediaURL }}
                             style={styles.categoryImage}
                             resizeMode='contain' />
                         <Text style={{
@@ -71,6 +72,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#e2e2e2',
         width: 70,
+        height: 75,
         padding: 4,
     },
     categoryView: {
@@ -83,7 +85,8 @@ const styles = StyleSheet.create({
         width: 40,
         alignSelf: 'center',
         justifyContent: 'center',
-        marginBottom: 5
+        marginBottom: 5,
+        paddingTop: 8,
     },
 });
 

@@ -18,9 +18,11 @@ class CheckinConfirmation extends Component {
     constructor(props) {
         super(props);
         this.checkinDetail = this.props.navigation.getParam('listVal')
+        console.log('checkinDetail', this.checkinDetail)
         this.state = {
             storeDetails: {},
-            loader: true
+            loader: true,
+            isModalVisible: true
         }
     }
 
@@ -28,10 +30,12 @@ class CheckinConfirmation extends Component {
         this.getStoreData()
         this.couponDetail = JSON.parse(this.checkinDetail.coupon);
         const { storeCheckIn } = this.couponDetail;
+        console.log('storeCheckIn', storeCheckIn)
         this.setCheckInInfoInStorage(storeCheckIn);
     }
 
     setCheckInInfoInStorage = async (data) => {
+        console.log('store details while setting', this.state.storeDetails)
         await AsyncStorage.setItem('storeCheckInData', JSON.stringify(data));
     }
 
@@ -41,7 +45,7 @@ class CheckinConfirmation extends Component {
         let response = await GetStoreById(storeId)
         if (response.status == 200) {
             let storeDetails = JSON.parse(response.responseJson)
-            console.log('checkin store details', storeDetails)
+            console.log('checkin store detailss', storeDetails)
             this.setState({ storeDetails: storeDetails })
             this.updatedCheckinData(storeDetails);
         }
@@ -53,8 +57,12 @@ class CheckinConfirmation extends Component {
     };
 
     onExploreStore = () => {
-        this.props.navigation.navigate('StorePage', {
-            listVal: this.state.storeDetails, isStoreCheckin: true, onClose: () => { }
+        this.setState({
+            isModalVisible: false
+        }, () => {
+            this.props.navigation.navigate('StorePage', {
+                listVal: this.state.storeDetails, isStoreCheckin: true, onClose: () => { }
+            })
         })
     }
 
@@ -67,7 +75,7 @@ class CheckinConfirmation extends Component {
     }
 
     updatedCheckinData = (storeDetails) => {
-        let { location: { coordinates: [lng, lat] }, retailer, address, description } = storeDetails;
+        let { location: { coordinates: [lng, lat] }, retailer, address, description, storeReviewAnalytics } = storeDetails;
         const currentTime = (new Date()).getTime(); //time in miliseconds
         let storeInfo = {
             storeId: storeDetails.id,
@@ -78,7 +86,8 @@ class CheckinConfirmation extends Component {
             checkinAt: currentTime,
             retailer,
             address,
-            description
+            description,
+            storeReviewAnalytics
         };
         setCheckinInfo(storeInfo);
     }
@@ -89,9 +98,9 @@ class CheckinConfirmation extends Component {
         let discount = this.couponDetail.discount
         let expiryDate = moment(this.couponDetail.endTime).format("MMMM DD, YYYY")
         let message = `Enjoy ${discount}% off on Gift Vouchers in Dobo.App. Valid once per user. Expires ${expiryDate}`
-        let imageURL = retailer != null ? (Constants.imageResBaseUrl + retailer.iconURL) : Constants.DEFAULT_STORE_ICON
+        let imageURL = retailer != null ? retailer.iconURL.indexOf('http') > -1 ? retailer.iconURL : (Constants.imageResBaseUrl + retailer.iconURL) : Constants.DEFAULT_STORE_ICON
         return (
-            <ModalPopUp canClose={true} showClose={false} onClose={this.onCloseClickHandler} >
+            <ModalPopUp canClose={true} showClose={false} onClose={this.onCloseClickHandler} visible={this.state.isModalVisible}>
                 <ScrollView style={{ flex: 1 }}>
                     <View style={{ alignSelf: 'center', marginTop: '10%' }}>
                         <Text style={{ fontSize: 22, color: Constants.DOBO_RED_COLOR, alignSelf: 'center', fontFamily: Constants.LIST_FONT_FAMILY }}>Welcome!</Text>
@@ -105,8 +114,13 @@ class CheckinConfirmation extends Component {
                         </View>
                     </View>
                     <View style={{ padding: '10%' }}>
-                        <Text style={{ fontSize: 16, textAlign: 'center', color: Constants.DOBO_RED_COLOR, fontFamily: Constants.BOLD_FONT_FAMILY }}>Congratulations!</Text>
-                        <Text style={{ fontSize: 14, textAlign: 'center', fontStyle: 'italic', color: Constants.DOBO_RED_COLOR, fontFamily: Constants.LIST_FONT_FAMILY, marginTop: '5%' }}>{message}</Text>
+                        {
+                            Constants.SHOW_FEATURE &&
+                            <>
+                                <Text style={{ fontSize: 16, textAlign: 'center', color: Constants.DOBO_RED_COLOR, fontFamily: Constants.BOLD_FONT_FAMILY }}>Congratulations!</Text>
+                                <Text style={{ fontSize: 14, textAlign: 'center', fontStyle: 'italic', color: Constants.DOBO_RED_COLOR, fontFamily: Constants.LIST_FONT_FAMILY, marginTop: '5%' }}>{message}</Text>
+                            </>
+                        }
                     </View>
                     <View style={{ marginLeft: 50, marginRight: 50 }}>
                         <Button

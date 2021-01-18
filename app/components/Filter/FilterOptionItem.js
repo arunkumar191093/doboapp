@@ -16,7 +16,7 @@ const FilterOptionItem = ({ item, selected, onSelect }) => {
                 { backgroundColor: selected ? '#F9FAFB' : '#F2F6F7' },
             ]}
         >
-            <Text style={{ paddingLeft: 20, paddingVertical: '15%', color: 'black', fontSize: 18, fontFamily: Constants.LIST_FONT_FAMILY }}>{item.value}</Text>
+            <Text style={{ paddingLeft: 20, paddingVertical: '15%', color: 'black', fontSize: 14, fontFamily: Constants.LIST_FONT_FAMILY }}>{item.value}</Text>
             {/* {renderSelectedFilterTextView()} */}
         </ TouchableOpacity >
     );

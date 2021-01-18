@@ -64,9 +64,9 @@ class DoboVideoGrid extends Component {
                                 <Text style={{ ...styles.descriptionText }}>
                                     {item.description.toUpperCase()}
                                 </Text>
-                                <Text style={{ ...styles.descriptionText }}>
+                                {/* <Text style={{ ...styles.descriptionText }}>
                                     Which Products Work Best
-                            </Text>
+                            </Text> */}
                             </View>
                         </View>
                     </ImageBackground>
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     },
     descriptionText: {
         color: 'white',
-        fontSize: 11,
+        fontSize: 9,
         marginLeft: '5%',
         fontFamily: Constants.LIST_FONT_FAMILY
     },

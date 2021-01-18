@@ -29,6 +29,6 @@ export const getCampaigns = async function () {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }

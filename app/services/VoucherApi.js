@@ -29,7 +29,7 @@ export const GetRetailerWithVoucher = async function () {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 };
 
@@ -60,7 +60,7 @@ export const GetVoucherByRetailer = async function (id) {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 };
 
@@ -91,7 +91,7 @@ export const GetVoucherByUser = async function () {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 };
 
@@ -126,7 +126,7 @@ export const vouchersDetails = async function (data) {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 };
 
@@ -158,6 +158,6 @@ export const getcouponbycode = async function (couponCode) {
         };
         return returnObj;
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 };

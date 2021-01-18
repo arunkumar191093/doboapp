@@ -41,7 +41,8 @@ class StorePageDetails extends Component {
         bagId: 0,
         showFlashMessage: false,
         storeData: {},
-        isOfferPage: false
+        isOfferPage: false,
+        isBuyEnabled: false
     }
     constructor(props) {
         super(props);
@@ -50,9 +51,10 @@ class StorePageDetails extends Component {
     componentDidMount() {
         let productDetails = this.props.navigation.getParam('value');
         this.storeInfo = this.props.navigation.getParam('storeInfo');
-
-        this.setState({ storeData: productDetails });
-        let image = Constants.imageResBaseUrl + productDetails.media
+        console.log('productDetails', productDetails)
+        let isBuyEnabled = this.storeDetails.storeConfiguration && this.storeDetails.storeConfiguration.isBuyOnlineEnabled;
+        this.setState({ storeData: productDetails, isBuyEnabled: isBuyEnabled });
+        let image = productDetails.media && productDetails.media.indexOf('http') > -1 ? productDetails.media : Constants.imageResBaseUrl + productDetails.media
         this.setState({ imageURL: image })
 
         if (productDetails.type == StoreEntityType.FeatureProduct) {
@@ -72,12 +74,13 @@ class StorePageDetails extends Component {
         if (response.status == 200) {
             let productDetails = response.responseJson
             let jsonProductDetails = JSON.parse(productDetails)
+            console.log('response', jsonProductDetails)
             this.setState({ productDetails: jsonProductDetails })
             if (jsonProductDetails.mediaUrls) {
                 let finalMediaUrls = jsonProductDetails.mediaUrls.map((item) => {
-                    return Constants.imageResBaseUrl + item;
+                    return item && (item.indexOf('http') > -1) ? item : Constants.imageResBaseUrl + item;
                 })
-                this.setState({ mediaURLs: finalMediaUrls }) //TODO: remove this copying data code
+                this.setState({ mediaURLs: finalMediaUrls })
             }
             // this.checkPresenceInCart();
         }
@@ -88,9 +91,10 @@ class StorePageDetails extends Component {
         if (response.status == 200) {
             let productDetails = response.responseJson
             let jsonProductDetails = JSON.parse(productDetails)
+            console.log('response offer', jsonProductDetails)
             this.setState({
                 productDetails: jsonProductDetails,
-                mediaURLs: [Constants.imageResBaseUrl + jsonProductDetails.media]
+                mediaURLs: [jsonProductDetails.media && jsonProductDetails.media.indexOf('http') > -1 ? jsonProductDetails.media : Constants.imageResBaseUrl + jsonProductDetails.media]
             })
             // this.checkPresenceInCart();
         }
@@ -101,7 +105,7 @@ class StorePageDetails extends Component {
         if (response.status == 200) {
             let cartItems = response.responseJson;
             this.setState({
-                cartItemsCount: cartItems.baggedProducts.length,
+                cartItemsCount: cartItems.itemCount,
                 bagId: cartItems.baggedProducts[0].baggedProduct.bagId
             })
         }
@@ -166,7 +170,7 @@ class StorePageDetails extends Component {
         return (
             <ImageBackground
                 style={{ ...styles.backgroundImage }}
-                source={{ uri: data }}
+                source={{ uri: data.trim() }}
                 resizeMode='contain'
 
                 imageStyle={{ height: '100%', width: '100%' }}
@@ -227,7 +231,9 @@ class StorePageDetails extends Component {
 
             if (item.mediaType == 0) {
                 let replaceUrl = item.media.replace(/\\/gi, '/')
-                sharedData = Constants.baseURL + replaceUrl
+                let firstUrl = replaceUrl.split(',')[0];
+                let finalUrl = firstUrl && firstUrl.indexOf('http') > -1 ? firstUrl : Constants.baseURL + firstUrl;
+                sharedData = finalUrl
             }
             else {
                 let replaceUrl = item.media
@@ -240,7 +246,7 @@ class StorePageDetails extends Component {
                 let response = await createShareUserAction(entityType, item.id)
                 console.log('Share UserAction Response', response)
             } catch (error) {
-                console.error('Could not share', error)
+                console.log('Could not share', error)
             }
         }
     }
@@ -256,6 +262,8 @@ class StorePageDetails extends Component {
             }
             else
                 await likeContent(EntityType.FeatureProduct, item)
+            actions.changeLikeState(true)
+            actions.changeLikeShowBadge(true)
         }
         else {
             if (item.useraction != undefined) {
@@ -280,7 +288,7 @@ class StorePageDetails extends Component {
     }
 
     handleCall = () => {
-        callNumber(this.storeInfo.phone || this.storeInfo.retailer.alternateContact)
+        callNumber(this.storeInfo.phone || this.storeInfo.retailer.alternateContact || this.storeInfo.retailer.phone)
     }
 
     render() {
@@ -288,22 +296,30 @@ class StorePageDetails extends Component {
         if (Object.keys(productDetails).length === 0 && productDetails.constructor === Object) {
             return null
         }
-        const { name, discription, price, discount, category, subCategory, otherCategory } = productDetails;
+        const { name, discription, description, price, discount, category, subCategory, otherCategory, storeAdTypesRelations, customOffDesc, isDiscountVisible } = productDetails;
         let categoryName = `${category && category.name || ''}, ${subCategory && subCategory.name || ''}, ${otherCategory && otherCategory.name || ''}`;
-        let discountedPrice = (price - price * (discount / 100)).toFixed(0)
+        let discountedPrice = (price - price * (discount / 100)).toFixed(0);
+        let dealType = customOffDesc ? customOffDesc : '';
+        if (storeAdTypesRelations && storeAdTypesRelations.length) {
+            storeAdTypesRelations.forEach((ad, index) => {
+                if (ad.adType) {
+                    dealType += index != storeAdTypesRelations.length - 1 ? `${ad.adType.name}, ` : ad.adType.name;
+                }
+            })
+        }
         return (
             <View style={{ flex: 1 }}>
                 <NavHeader backPressHandler={this.backPressHandler} heading={this.storeInfo.description}>
                     <View style={styles.rightContainer}>
                         <MaterialCommunityIcons name='phone' size={20} color="#31546e" style={styles.callIcon} onPress={this.handleCall} />
                         {
-                            Constants.SHOW_FEATURE && !this.state.isOfferPage &&
+                            !this.state.isOfferPage &&
                             <CartBag count={this.state.cartItemsCount} onBadgePress={this.handleCartPress} />
                         }
                     </View>
                 </NavHeader>
                 <ScrollView contentContainerStyle={{
-                    paddingBottom: Constants.STORE_CHECKIN_BUTTON_POSITION + 40,
+                    paddingBottom: 100,
                     flexGrow: 1,
                     marginTop: 40
                 }}>
@@ -343,10 +359,13 @@ class StorePageDetails extends Component {
                         <>
                             <View style={styles.priceInfoContainer}>
                                 <Text style={[styles.priceDefault, styles.price]}>Rs. {discountedPrice}</Text>
-                                <Text style={[styles.priceDefault, styles.strikePrice]}>Rs. {price}</Text>
                                 {
-                                    discount ?
-                                        <Text style={[styles.priceDefault, styles.discountPercent]}>({discount}% OFF)</Text> : null
+                                    discount && isDiscountVisible ?
+                                        <>
+                                            <Text style={[styles.priceDefault, styles.strikePrice]}>Rs. {price}</Text>
+                                            <Text style={[styles.priceDefault, styles.discountPercent]}>({discount}% OFF)</Text>
+                                        </> : null
+
                                 }
                             </View>
                             <Text style={{ ...styles.priceDefault, color: '#47c15c', paddingHorizontal: 12 }}>Inclusive of all taxes</Text>
@@ -377,10 +396,18 @@ class StorePageDetails extends Component {
                         />
                     }
                     {
-                        !!discription &&
+                        (!!discription || !!description) &&
                         <InfoComponent heading={`${this.state.isOfferPage ? 'Offer' : 'Product'} Details`}>
                             <Text numberOfLines={6} style={styles.infoContent}>
-                                {discription}
+                                {discription || description}
+                            </Text>
+                        </InfoComponent>
+                    }
+                    {
+                        this.state.isOfferPage && !!dealType &&
+                        <InfoComponent heading="Deal Type">
+                            <Text numberOfLines={6} style={styles.infoContent}>
+                                {dealType}
                             </Text>
                         </InfoComponent>
                     }
@@ -396,7 +423,7 @@ class StorePageDetails extends Component {
                     }
                 </ScrollView >
                 {
-                    Constants.SHOW_FEATURE && !this.state.isOfferPage &&
+                    !this.state.isOfferPage && this.state.isBuyEnabled &&
                     <TouchableOpacity style={styles.addToBagBtn} onPress={this.state.isAddedInBag ? this.handleCartPress : this.handleAddToBag}>
                         <Text style={{ color: 'white', textAlign: 'center', fontFamily: Constants.LIST_FONT_FAMILY, }}>
                             {this.state.isAddedInBag ? 'GO TO BAG' : 'ADD TO BAG'}

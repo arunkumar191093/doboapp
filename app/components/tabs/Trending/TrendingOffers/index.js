@@ -57,7 +57,7 @@ class TrendingOffers extends Component {
             let jsonUserTrend = JSON.parse(userTrend)
             let trendCampaigns = jsonUserTrend.campaigns;
             let trendStoreAds = jsonUserTrend.storeAds;
-            let result = mergeCampaignsAndStoreAds(trendCampaigns, trendStoreAds)
+            let result = mergeCampaignsAndStoreAds(trendCampaigns, trendStoreAds,[])
             let userListResult = this.mergeWithUserList(result, campaigns, storeAds)
             this.trendingList = userListResult
             let dataProvider = new DataProvider((r1, r2) => {
@@ -262,7 +262,7 @@ class TrendingOffers extends Component {
             let response = await createShareUserAction(entityType, data.values.id)
             console.log('Share UserAction Response', response)
         } catch (error) {
-            console.error('Could not share', error)
+            console.log('Could not share', error)
         }
     }
 }

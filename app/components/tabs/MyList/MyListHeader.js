@@ -15,11 +15,12 @@ class MyListHeader extends PureComponent {
                         My List
                     </Text>
                 </View>
-
+                
                 <View style={styles.rightContainer}>
-                    <GiftVoucherBadge
+                    {/* Hidden as requested by dobo team */}
+                    {/* <GiftVoucherBadge
                         onGiftVoucherClick={this.props.giftVoucherClicked}
-                    />
+                    /> */}
                 </View>
             </View>
         )

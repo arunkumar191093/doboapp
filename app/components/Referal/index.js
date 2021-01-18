@@ -72,7 +72,7 @@ class Referal extends Component {
                     />
                     <View style={styles.middleTextDet}>
                         <Text style={styles.TextDetails}>
-                            Invite your friends to join dobo and earn discount coupons whenever firend visits a store!
+                            Invite your friends to try dobo App!
                         </Text>
                     </View>
                 </View>
@@ -85,7 +85,7 @@ class Referal extends Component {
                             borderRadius: 30,
                             justifyContent: 'flex-end'
                         }}
-                        titleStyle={{ fontSize: 16 }}
+                        titleStyle={{ fontSize: 16, fontFamily: Constants.LIST_FONT_FAMILY }}
                         onPress={() => this.onInviteHandler(this.state.referalDetails)}
                     />
                 </View>
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
         // backgroundColor: 'green'
     },
     imageHead: {
-        height: '65%',
+        height: '55%',
         width: '100%',
         marginTop: '10%'
     },
